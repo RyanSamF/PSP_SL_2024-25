@@ -1,0 +1,13 @@
+#Config File for Rocket setup
+---
+#Files for Motor
+-motor:
+  net_mass: 4.2 #mass of motor with propellant in kg
+  prop_mass: 1.878 #mass of propellant in kg
+  center_of_dry_mass: 0.248 #distance from nozzle of center of mass of motor without propellant in kg
+  dry_inertia: [0.2499, 0.2499, 0.008603] #moment of inertia without propellant in kg*m^2 
+  chamber_rad: 0.03505 #radius of inside of propellant chamber in meters
+  chamber_height: 0.4 #height of propellant chamber in meters
+  chamber_pos:  
+
+...

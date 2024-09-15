@@ -1,8 +1,4 @@
-"motor:","Loki L1482-LB"
-"contributor:","John Coker"
-"details:","https://www.thrustcurve.org/simfiles/5f4294d20002e900000005de/"
-
-"Time (s)","Thrust (N)"
+Time,Thrust 
 0.00776398,1344.83
 0.0465839,1241.38
 0.48913,1551.72
