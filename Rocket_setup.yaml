@@ -1,6 +1,10 @@
 #Config File for Rocket setup
 ---
 #Files for Motor
+-githubfiles:
+  thrusturl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/OpenCurve.csv' #url for thrust
+  dragurl: #url for drag
+
 -motor:
   net_mass: 4.2 #mass of motor with propellant in kg
   prop_mass: 1.878 #mass of propellant in kg

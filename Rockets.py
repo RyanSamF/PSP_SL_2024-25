@@ -6,8 +6,9 @@ import pandas
 
 
 thrusturl = 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/exodusthrustcurve.csv'
-df = pandas.read_csv(thrusturl, index_col=0)
-print(df.columns)
+df = pandas.read_csv(thrusturl, index_col=None)
+print(df[df.columns[0]].tolist())
+print(df[df.columns[1]].tolist())
 """
 env = Environment(latitude = 34.894616, longitude = -86.616947)
 #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
