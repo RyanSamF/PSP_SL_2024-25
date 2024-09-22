@@ -6,35 +6,37 @@
   dragurl: #url for drag
 
 -motor:
-  net_mass: 4.2 #mass of motor with propellant in kg
-  prop_mass: 1.878 #mass of propellant in kg
-  center_of_dry_mass: 0.248 #distance from nozzle of center of mass of motor without propellant in kg
-  dry_inertia: [0.2499, 0.2499, 0.008603] #moment of inertia without propellant in kg*m^2 
-  chamber_rad: 0.03505 #radius of inside of propellant chamber in meters
-  chamber_height: 0.4 #height of propellant chamber in meters
+  net_mass: 4.2 #mass of motor with propellant in lbs
+  prop_mass: 1.878 #mass of propellant in lbs
+  center_of_dry_mass: 0.248 #distance from nozzle of center of mass of motor without propellant in lbs
+  dry_inertia: [1.22, 1.22, 0.042] #moment of inertia without propellant in lbs*ft^2 
+  #INERTIA NUMBERS NOT UPDATED
+  chamber_rad: 0.03505 #radius of inside of propellant chamber in in
+  chamber_height: 0.4 #height of propellant chamber in ft
   chamber_pos:  
 
 -rocket:
-  radius: 0.06541 #radius of rocket in meters
-  mass: 15.644 #mass in kg
-  inertia: #moment of inertia in kg/m^2
-  COM: #center of mass from nose without motor in meters
+  radius: 0.06541 #radius of rocket in ft
+  mass: 15.644 #mass in ft
+  inertia: #moment of inertia in lbs*kg^2
+  COM: 52.749 #center of mass from nose without motor in inches
+  length: 92.5 #length of rocket in inches
 
 -nose_cone:
-  length: #length of nose cone in meters
+  length: #length of nose cone in ft
   kind: #kind of nose cone
   
 -fins:
   n: #number of fins
-  root_chord: #root chord in meters
-  tip_chord: #length of tip chord in meters
+  root_chord: #root chord in ft
+  tip_chord: #length of tip chord in ft
   position: #position of
-  span: #span of fin in meters
-  sweep: #sweep length of fins in meters  
+  span: #span of fin in ft
+  sweep: #sweep length of fins in ft  
 
 -parachutes:
   drogue_cd: #coefficient of drag of drogue parachute
   main_cd: #coefficient of drag of main parachute
-  main_trigger: #trigger height for main parachute 
+  main_trigger: #trigger height for main parachute in ft 
 
 ...

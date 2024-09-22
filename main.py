@@ -12,11 +12,12 @@ thrust = np.array(df[df.columns[1]].tolist())
 thrust_array = np.stack([time_thrust, thrust], 1)
 
 
-dragurl = 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/RasCurve.csv'
+dragurl = 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/OpenCurve.csv'
 df = pandas.read_csv(dragurl, index_col=None)
 time_drag = np.array(df[df.columns[0]].tolist())
 drag = np.array(df[df.columns[1]].tolist())
 drag_array = np.stack([time_drag, drag], 1)
+print(drag)
 
 env = Environment(latitude = 34.894616, longitude = -86.616947)
 #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
@@ -56,7 +57,7 @@ exodus = Rocket(
     coordinate_system_orientation = "nose_to_tail",
     center_of_mass_without_motor = 45.967 / 39.37
 )
-exodus.add_motor( l1482, 92.5 / 39.37)
+exodus.add_motor( l1482, 92.5 / 39.37) #position of motor in rocket
 
 nose_cone = exodus.add_nose(
     length = 11 / 39.37,
@@ -84,13 +85,13 @@ drogue = exodus.add_parachute(
     trigger = "apogee"
 )
 testFlight = Flight(
-    rocket = exodus, environment = env, rail_length = 3.6576, inclination = 85  , heading = 130 + 180
+    rocket = exodus, environment = env, rail_length = 3.6576, inclination = 90  , heading = 130 + 180
 )
 
 #exodus.draw()
 #testFlight.plots.trajectory_3d()
-testFlight.plots.all()
+#testFlight.plots.all()
 #testFlight.plots.aerodynamic_forces()
-testFlight.prints.all()
+#testFlight.prints.all()
 print((testFlight.apogee - env.elevation) * 3.28084)
 print((testFlight.apogee - env.elevation))
