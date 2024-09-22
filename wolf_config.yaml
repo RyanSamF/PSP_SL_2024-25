@@ -14,4 +14,27 @@
   chamber_height: 0.4 #height of propellant chamber in meters
   chamber_pos:  
 
+-rocket:
+  radius: 0.06541 #radius of rocket in meters
+  mass: 15.644 #mass in kg
+  inertia: #moment of inertia in kg/m^2
+  COM: #center of mass from nose without motor in meters
+
+-nose_cone:
+  length: #length of nose cone in meters
+  kind: #kind of nose cone
+  
+-fins:
+  n: #number of fins
+  root_chord: #root chord in meters
+  tip_chord: #length of tip chord in meters
+  position: #position of
+  span: #span of fin in meters
+  sweep: #sweep length of fins in meters  
+
+-parachutes:
+  drogue_cd: #coefficient of drag of drogue parachute
+  main_cd: #coefficient of drag of main parachute
+  main_trigger: #trigger height for main parachute 
+
 ...

@@ -17,8 +17,6 @@ df = pandas.read_csv(dragurl, index_col=None)
 time_drag = np.array(df[df.columns[0]].tolist())
 drag = np.array(df[df.columns[1]].tolist())
 drag_array = np.stack([time_drag, drag], 1)
-print(drag_array)
-
 
 env = Environment(latitude = 34.894616, longitude = -86.616947)
 #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
@@ -75,11 +73,11 @@ fin_set = exodus.add_trapezoidal_fins(
     sweep_length = 3.7 / 39.37,
     airfoil = (airfoilLift, "degrees")
 )
-#main = exodus.add_parachute(
-    #name = "main",
-    #cd_s = 11.674,
-    #trigger = 213.36
-#)
+main = exodus.add_parachute(
+    name = "main",
+    cd_s = 11.674,
+    trigger = 213.36
+)
 drogue = exodus.add_parachute(
     name = "drogue",
     cd_s = 0.291,
