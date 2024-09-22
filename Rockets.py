@@ -7,9 +7,19 @@ import pandas
 
 thrusturl = 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/exodusthrustcurve.csv'
 df = pandas.read_csv(thrusturl, index_col=None)
-print(df[df.columns[0]].tolist())
-print(df[df.columns[1]].tolist())
-"""
+time_thrust = np.array(df[df.columns[0]].tolist())
+thrust = np.array(df[df.columns[1]].tolist())
+thrust_array = np.stack([time_thrust, thrust], 1)
+
+
+dragurl = 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/RasCurve.csv'
+df = pandas.read_csv(dragurl, index_col=None)
+time_drag = np.array(df[df.columns[0]].tolist())
+drag = np.array(df[df.columns[1]].tolist())
+drag_array = np.stack([time_drag, drag], 1)
+print(drag_array)
+
+
 env = Environment(latitude = 34.894616, longitude = -86.616947)
 #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
 env.set_date(
@@ -23,11 +33,11 @@ airfoilLift = []
 for i in np.linspace(-10,10, 200):
     airfoilLift.append((i, i * 10))
 
-airfoilLift = np.array(airfoilLift)
+airfoilLift = np.array(airfoilLift) 
 
 l1482 = GenericMotor(
     coordinate_system_orientation= "nozzle_to_combustion_chamber",
-    thrust_source = "https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/testCurve.csv",
+    thrust_source = thrust_array,
     dry_mass = 4.2 - 1.878, #kg
     propellant_initial_mass = 1.878, #kg
     center_of_dry_mass_position = 9.764 / 39.37, #in -> m
@@ -43,8 +53,8 @@ exodus = Rocket(
     radius = 2.575 / 39.37, #radius in -> meters
     mass = (34.4903 / 2.2046), #mass lbs -> kg
     inertia = (186.28 / 4.882 , 186.28 / 4.882, 1.56 / 4.882), #inertia lbs/ft^2 -> kg/m^2
-    power_off_drag = "..\\RasCurve.csv", 
-    power_on_drag = "..\\RasCurve.csv",
+    power_off_drag = drag_array,
+    power_on_drag = drag_array,
     coordinate_system_orientation = "nose_to_tail",
     center_of_mass_without_motor = 45.967 / 39.37
 )
@@ -86,4 +96,3 @@ testFlight.plots.all()
 testFlight.prints.all()
 print((testFlight.apogee - env.elevation) * 3.28084)
 print((testFlight.apogee - env.elevation))
-"""
