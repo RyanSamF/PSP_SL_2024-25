@@ -11,9 +11,10 @@ with open('wolf_config.yaml', 'r') as file:
 files_data = data["githubfiles"]
 motor_data = data["motor"]
 rocket_data = data["rocket"]
-nose_data = data["nose"]
+nose_data = data["nose_cone"]
 fins_data = data["fins"]
 parachutes_data = data["parachutes"]
+
 thrusturl = files_data["thrusturl"]
 
 df = pandas.read_csv(thrusturl, index_col=None)

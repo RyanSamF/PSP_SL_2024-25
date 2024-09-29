@@ -1,11 +1,11 @@
 #Config File for Rocket setup
 ---
 #Files for Motor
--githubfiles:
+githubfiles:
   thrusturl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/Wolf_thrust.csv' #url for thrust
   dragurl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/wolf_cd_openrocket.csv' #url for drag
 
--motor:
+motor:
   net_mass: 4.2 #mass of motor with propellant in lbs
   prop_mass: 1.878 #mass of propellant in lbs
   center_of_dry_mass: 0.248 #distance from nozzle of center of mass of motor without propellant in in
@@ -16,17 +16,17 @@
   chamber_pos: 7.9 #position of center of propellant chamber inches
   nozzle_rad: 0.625 #radius of nozzle in inches
 
--rocket:
+rocket:
   radius: 2.575 #radius of rocket in in
   mass: 15.644 #mass in lbs
   inertia: [180.28, 180.28, 1.16] #moment of inertia in lbs*kg^2
   COM: 52.749 #center of mass from nose without motor in inches
   length: 92.5 #length of rocket in inches
 
--nose_cone:
+nose_cone:
   length: 11 #length of nose cone in inches
   
--fins:
+fins:
   n: 3 #number of fins
   root_chord: 5.5 #root chord in inches
   tip_chord: 2 #length of tip chord in inches
@@ -34,7 +34,7 @@
   span: 6.2 #span of fin in inches
   sweep: 1.82 #sweep length of fins in inches  
 
--parachutes:
+parachutes:
   drogue_cd: 0.61  #coefficient of drag of drogue parachute
   main_cd: 2.2 #coefficient of drag of main parachute
   main_trigger: 700 #trigger height for main parachute in ft
