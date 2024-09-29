@@ -19,7 +19,7 @@ motor:
 rocket:
   radius: 2.575 #radius of rocket in in
   mass: 15.644 #mass in lbs
-  inertia: [180.28, 180.28, 1.16] #moment of inertia in lbs*kg^2
+  inertia: [180.28, 180.28, 1.16] #moment of inertia in lbs*ft^2
   COM: 52.749 #center of mass from nose without motor in inches
   length: 92.5 #length of rocket in inches
 
