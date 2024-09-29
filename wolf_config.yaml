@@ -3,7 +3,7 @@
 #Files for Motor
 -githubfiles:
   thrusturl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/Wolf_thrust.csv' #url for thrust
-  dragurl: #url for drag
+  dragurl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/wolf_cd_openrocket.csv' #url for drag
 
 -motor:
   net_mass: 4.2 #mass of motor with propellant in lbs
@@ -12,32 +12,31 @@
   dry_inertia: [1.22, 1.22, 0.042] #moment of inertia without propellant in lbs*ft^2 
   #INERTIA NUMBERS NOT UPDATED
   chamber_rad: 0.03505 #radius of inside of propellant chamber in in
-  chamber_height: 0.4 #height of propellant chamber in ft
-  chamber_pos:  
-  nozzle_rad: 0.625
+  chamber_height: 15.748 #height of propellant chamber in inches
+  chamber_pos: 7.9 #position of center of propellant chamber inches
+  nozzle_rad: 0.625 #radius of nozzle in inches
 
 -rocket:
   radius: 2.575 #radius of rocket in in
   mass: 15.644 #mass in lbs
-  inertia: #moment of inertia in lbs*kg^2
+  inertia: [180.28, 180.28, 1.16] #moment of inertia in lbs*kg^2
   COM: 52.749 #center of mass from nose without motor in inches
   length: 92.5 #length of rocket in inches
 
 -nose_cone:
-  length: #length of nose cone in ft
-  kind: #kind of nose cone
+  length: 11 #length of nose cone in inches
   
 -fins:
-  n: #number of fins
-  root_chord: #root chord in ft
-  tip_chord: #length of tip chord in ft
-  position: #position of
-  span: #span of fin in ft
-  sweep: #sweep length of fins in ft  
+  n: 3 #number of fins
+  root_chord: 5.5 #root chord in inches
+  tip_chord: 2 #length of tip chord in inches
+  position: 87 #position of top of fins in inches
+  span: 6.2 #span of fin in inches
+  sweep: 1.82 #sweep length of fins in inches  
 
 -parachutes:
   drogue_cd: 0.61  #coefficient of drag of drogue parachute
-  main_cd: #coefficient of drag of main parachute
-  main_trigger: #trigger height for main parachute ft
+  main_cd: 2.2 #coefficient of drag of main parachute
+  main_trigger: 700 #trigger height for main parachute in ft
 
 ...
