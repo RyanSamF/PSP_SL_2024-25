@@ -23,16 +23,16 @@
   length: 92.5 #length of rocket in inches
 
 -nose_cone:
-  length: #length of nose cone in ft
-  kind: #kind of nose cone
+  length: 11 #length of nose cone in ft
+  kind: haackseries #kind of nose cone
   
 -fins:
-  n: #number of fins
-  root_chord: #root chord in ft
-  tip_chord: #length of tip chord in ft
-  position: #position of
-  span: #span of fin in ft
-  sweep: #sweep length of fins in ft  
+  n: 3 #number of fins
+  root_chord: 5.5 #root chord in in
+  tip_chord: 2 #length of tip chord in in
+  position: #bottom of relative component (recheck value) #position of
+  span: #5(recheck value) #span of fin in ft
+  sweep: 1.82 #sweep length of fins in ft  
 
 -parachutes:
   drogue_cd: #coefficient of drag of drogue parachute
