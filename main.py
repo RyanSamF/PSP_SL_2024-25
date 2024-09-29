@@ -4,6 +4,11 @@ import datetime
 import numpy as np
 import pandas
 import yaml
+import math
+import matplotlib as plt
+
+wind_speed = 20 * 0.44704
+angle = 10
 
 with open('wolf_config.yaml', 'r') as file:
     data = yaml.safe_load(file)
@@ -34,7 +39,11 @@ env.set_date(
     (2024, 4, 13, 6))
 #env.set_atmospheric_model(type ="wyoming_sounding", file = URL)
 #env.set_atmospheric_model(type = "Windy", file="")
-env.set_atmospheric_model(type="standard_atmosphere")
+env.set_atmospheric_model(
+    type="custom_atmosphere",
+    wind_u = [(0, wind_speed), (2000, wind_speed)],
+    wind_v = [(0, 0), (2000, 0)]
+                          )
 env.info()
 #env.plots.all()
 airfoilLift = []
@@ -85,22 +94,31 @@ fin_set = wolf.add_trapezoidal_fins(
 )
 main = wolf.add_parachute(
     name = "main",
-    cd_s = parachutes_data["main_cd"],
-    trigger = 213.36
+    cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 / 39.37) ** 2 * math.pi,
+    trigger = parachutes_data["main_trigger"] / 3.281 #altitude of main deployment ft -> meters
 )
 drogue = wolf.add_parachute(
     name = "drogue",
-    cd_s = parachutes_data["drogue_cd"],
+    cd_s = parachutes_data["drogue_cd"] * (parachutes_data["drogue_diameter"] / 2 / 39.37) ** 2 * math.pi,
     trigger = "apogee"
 )
 testFlight   = Flight(
-    rocket = wolf, environment = env, rail_length = 3.6576, inclination = 90  , heading = 130 + 180
+    rocket = wolf, environment = env, rail_length = 3.6576, inclination = 90 - angle  , heading = 270
 )
 
-wolf.draw()
-testFlight.plots.trajectory_3d()
+#wolf.draw()
+#testFlight.plots.trajectory_3d()
 #testFlight.plots.all()
 #testFlight.plots.aerodynamic_forces()
-testFlight.prints.all()
+#testFlight.prints.all()
 print((testFlight.apogee - env.elevation) * 3.28084)
 print((testFlight.apogee - env.elevation))
+alt = []
+time = testFlight.time
+for index in time:
+    alt.append(testFlight.altitude(index) * 3.28084)
+
+plt.pyplot.plot(time, alt)
+plt.pyplot.show()
+
+    

@@ -36,7 +36,9 @@ fins:
 
 parachutes:
   drogue_cd: 0.61  #coefficient of drag of drogue parachute
-  main_cd: 2.2 #coefficient of drag of main parachute
+  drogue_diameter: 18 #diameter of drogue parachute in inches
+  main_cd: 2.2 #coefficient of drag of main parachute 
+  main_diameter: 120 #diameter of main parachute in inches
   main_trigger: 700 #trigger height for main parachute in ft
 
 ...
