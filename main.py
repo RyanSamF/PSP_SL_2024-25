@@ -22,13 +22,11 @@ time_thrust = np.array(df[df.columns[0]].tolist())
 thrust = np.array(df[df.columns[1]].tolist())
 thrust_array = np.stack([time_thrust, thrust], 1)
 
-
 dragurl = files_data["dragurl"]
 df = pandas.read_csv(dragurl, index_col=None)
 time_drag = np.array(df[df.columns[0]].tolist())
 drag = np.array(df[df.columns[1]].tolist())
 drag_array = np.stack([time_drag, drag], 1)
-print(drag)
 
 env = Environment(latitude = 34.894616, longitude = -86.616947)
 #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
@@ -95,14 +93,14 @@ drogue = wolf.add_parachute(
     cd_s = parachutes_data["drogue_cd"],
     trigger = "apogee"
 )
-testFlight = Flight(
+testFlight   = Flight(
     rocket = wolf, environment = env, rail_length = 3.6576, inclination = 90  , heading = 130 + 180
 )
 
-#wolf.draw()
-#testFlight.plots.trajectory_3d()
+wolf.draw()
+testFlight.plots.trajectory_3d()
 #testFlight.plots.all()
 #testFlight.plots.aerodynamic_forces()
-#testFlight.prints.all()
+testFlight.prints.all()
 print((testFlight.apogee - env.elevation) * 3.28084)
 print((testFlight.apogee - env.elevation))

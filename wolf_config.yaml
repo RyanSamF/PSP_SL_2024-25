@@ -2,26 +2,26 @@
 ---
 #Files for Motor
 githubfiles:
-  thrusturl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/Wolf_thrust.csv' #url for thrust
-  dragurl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/wolf_cd_openrocket.csv' #url for drag
+  thrusturl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/CSV_files/Wolf_thrust.csv' #url for thrust
+  dragurl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/CSV_files/wolf_cd_openrocket.csv' #url for drag
 
 motor:
-  net_mass: 4.2 #mass of motor with propellant in lbs
-  prop_mass: 1.878 #mass of propellant in lbs
-  center_of_dry_mass: 0.248 #distance from nozzle of center of mass of motor without propellant in in
+  net_mass: 7.8 #mass of motor with propellant in lbs
+  prop_mass: 4.01 #mass of propellant in lbs
+  center_of_dry_mass: 9.843 #distance from nozzle of center of mass of motor without propellant in in
   dry_inertia: [1.22, 1.22, 0.042] #moment of inertia without propellant in lbs*ft^2 
   #INERTIA NUMBERS NOT UPDATED
-  chamber_rad: 0.03505 #radius of inside of propellant chamber in in
+  chamber_rad: 1.379 #radius of inside of propellant chamber in in
   chamber_height: 15.748 #height of propellant chamber in inches
-  chamber_pos: 7.9 #position of center of propellant chamber inches
+  chamber_pos: 8.5 #position of center of propellant chamber inches
   nozzle_rad: 0.625 #radius of nozzle in inches
 
 rocket:
   radius: 2.575 #radius of rocket in in
-  mass: 15.644 #mass in lbs
+  mass: 28.5 #mass in lbs
   inertia: [180.28, 180.28, 1.16] #moment of inertia in lbs*ft^2
   COM: 52.749 #center of mass from nose without motor in inches
-  length: 92.5 #length of rocket in inches
+  length: 95.598 #length of rocket in inches
 
 nose_cone:
   length: 11 #length of nose cone in inches
