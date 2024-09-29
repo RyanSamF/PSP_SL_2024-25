@@ -14,8 +14,7 @@ rocket_data = data["rocket"]
 nose_data = data["nose"]
 fins_data = data["fins"]
 parachutes_data = data["parachutes"]
-
-thrusturl = 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/exodusthrustcurve.csv'
+thrusturl = files_data["thrusturl"]
 
 df = pandas.read_csv(thrusturl, index_col=None)
 time_thrust = np.array(df[df.columns[0]].tolist())
@@ -23,7 +22,7 @@ thrust = np.array(df[df.columns[1]].tolist())
 thrust_array = np.stack([time_thrust, thrust], 1)
 
 
-dragurl = 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/OpenCurve.csv'
+dragurl = files_data["dragurl"]
 df = pandas.read_csv(dragurl, index_col=None)
 time_drag = np.array(df[df.columns[0]].tolist())
 drag = np.array(df[df.columns[1]].tolist())
@@ -48,58 +47,58 @@ airfoilLift = np.array(airfoilLift)
 l1482 = GenericMotor(
     coordinate_system_orientation= "nozzle_to_combustion_chamber",
     thrust_source = thrust_array,
-    dry_mass = motor_data["net_mass"] - motor_data["prop_mass"], #kg
-    propellant_initial_mass = 1.878, #kg
-    center_of_dry_mass_position = 9.764 / 39.37, #in -> m
+    dry_mass = (motor_data["net_mass"] - motor_data["prop_mass"]) * 0.4536, #lbs -> kg
+    propellant_initial_mass = motor_data["prop_mass"] * 0.4536, #kg
+    center_of_dry_mass_position = motor_data["center_of_dry_mass"] / 39.37, #in -> m
     #dry_inertia = (1.22 / 4.882, 1.22 / 4.882, 0.042 / 4.882),
-    chamber_radius= 35.05 / 1000, #mm to meters
-    chamber_height = 15.75 / 39.37, #in to meters
-    chamber_position = (19.625 / 39.37) / 2,
-    nozzle_radius = 0.625 / 39.37,
+    chamber_radius= motor_data["chamber_rad"] /39.37  ,#in to meters
+    chamber_height = motor_data["chamber_height"] / 39.37, #in to meters
+    chamber_position = motor_data["chamber_pos"] / 39.37, #in to meters
+    nozzle_radius = motor_data["nozzle_rad"] / 39.37, #in to meters
     burn_time = None
 )
 
-exodus = Rocket(
-    radius = 2.575 / 39.37, #radius in -> meters
-    mass = (34.4903 / 2.2046), #mass lbs -> kg
-    inertia = (186.28 / 4.882 , 186.28 / 4.882, 1.56 / 4.882), #inertia lbs/ft^2 -> kg/m^2
+wolf = Rocket(
+    radius = rocket_data["radius"] / 39.37, #radius in -> meters
+    mass = (rocket_data["mass"] / 2.2046), #mass lbs -> kg
+    inertia = rocket_data["inertia"], #inertia lbs/ft^2 -> kg/m^2
     power_off_drag = drag_array,
     power_on_drag = drag_array,
     coordinate_system_orientation = "nose_to_tail",
-    center_of_mass_without_motor = 45.967 / 39.37
+    center_of_mass_without_motor = rocket_data["COM"] / 39.37 #in -> meters
 )
-exodus.add_motor( l1482, 92.5 / 39.37) #position of motor in rocket
+wolf.add_motor( l1482, 92.5 / 39.37) #position of motor in rocket
 
-nose_cone = exodus.add_nose(
-    length = 11 / 39.37,
+nose_cone = wolf.add_nose(
+    length = nose_data["length"] / 39.37,
     kind = "von karman",
     position = 0
 )
 
-fin_set = exodus.add_trapezoidal_fins(
-    n = 3,
-    root_chord = 9.9 / 39.37, 
-    tip_chord = 3.8 / 39.37,
-    position = 82.6 / 39.37,
-    span = 6.7 / 39.37,
+fin_set = wolf.add_trapezoidal_fins(
+    n = fins_data["n"], #number of fins
+    root_chord = fins_data["root_chord"] / 39.37, #in -> meters
+    tip_chord = fins_data["tip_chord"] / 39.37, #in -> meters
+    position = fins_data["position"] / 39.37, #in -> meters
+    span = fins_data["span"] / 39.37, #in -> meters
     sweep_length = 3.7 / 39.37,
     airfoil = (airfoilLift, "degrees")
 )
-main = exodus.add_parachute(
+main = wolf.add_parachute(
     name = "main",
-    cd_s = 11.674,
+    cd_s = parachutes_data["main_cd"],
     trigger = 213.36
 )
-drogue = exodus.add_parachute(
+drogue = wolf.add_parachute(
     name = "drogue",
-    cd_s = 0.291,
+    cd_s = parachutes_data["drogue_cd"],
     trigger = "apogee"
 )
 testFlight = Flight(
-    rocket = exodus, environment = env, rail_length = 3.6576, inclination = 90  , heading = 130 + 180
+    rocket = wolf, environment = env, rail_length = 3.6576, inclination = 90  , heading = 130 + 180
 )
 
-#exodus.draw()
+#wolf.draw()
 #testFlight.plots.trajectory_3d()
 #testFlight.plots.all()
 #testFlight.plots.aerodynamic_forces()
