@@ -3,9 +3,20 @@ from matplotlib import *
 import datetime
 import numpy as np
 import pandas
+import yaml
 
+with open('wolf_config.yaml', 'r') as file:
+    data = yaml.safe_load(file)
+
+files_data = data["githubfiles"]
+motor_data = data["motor"]
+rocket_data = data["rocket"]
+nose_data = data["nose"]
+fins_data = data["fins"]
+parachutes_data = data["parachutes"]
 
 thrusturl = 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/exodusthrustcurve.csv'
+
 df = pandas.read_csv(thrusturl, index_col=None)
 time_thrust = np.array(df[df.columns[0]].tolist())
 thrust = np.array(df[df.columns[1]].tolist())
@@ -37,7 +48,7 @@ airfoilLift = np.array(airfoilLift)
 l1482 = GenericMotor(
     coordinate_system_orientation= "nozzle_to_combustion_chamber",
     thrust_source = thrust_array,
-    dry_mass = 4.2 - 1.878, #kg
+    dry_mass = motor_data["net_mass"] - motor_data["prop_mass"], #kg
     propellant_initial_mass = 1.878, #kg
     center_of_dry_mass_position = 9.764 / 39.37, #in -> m
     #dry_inertia = (1.22 / 4.882, 1.22 / 4.882, 0.042 / 4.882),
