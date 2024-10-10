@@ -22,7 +22,6 @@ rocket:
   inertia: [180.28, 180.28, 1.16] #moment of inertia in lbs*ft^2
   COM: 52.749 #center of mass from nose without motor in inches
   length: 95.598 #length of rocket in inches
-  largest_mass: 
 
 nose_cone:
   length: 11 #length of nose cone in inches
@@ -40,6 +39,6 @@ parachutes:
   drogue_diameter: 18 #diameter of drogue parachute in inches
   main_cd: 2.2 #coefficient of drag of main parachute 
   main_diameter: 120 #diameter of main parachute in inches
-  main_trigger: 700 #trigger height for main parachute in ft
+  main_trigger: 540 #trigger height for main parachute in ft
 
 ...

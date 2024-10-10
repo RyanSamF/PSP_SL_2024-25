@@ -110,8 +110,6 @@ drogue = wolf.add_parachute(
 for i in range(0,1):
     testFlight   = Flight(
         rocket = wolf, environment = env_arr[i], rail_length = 3.6576, inclination = 90 - angles[i]  , heading = 270)
-    print((testFlight.apogee - env.elevation) * 3.28084)
-    print((testFlight.apogee - env.elevation))
     alt = []
     accel = []
     vel = []
@@ -121,26 +119,39 @@ for i in range(0,1):
         accel.append(testFlight.az(index) * 3.28084 )
         vel.append(testFlight.vz(index) *  3.28084)
     fig, ax1 = plt.subplots()
+    ax1.set_ylabel("Altitude (ft)")
     ax1.set_xlabel('time (s)')
-    ax1.set_ylabel('Acceleration (ft/s²), Velocity (ft/s)')
-    lns1 = ax1.plot(time, accel, color=(1,0,0), label="Acceleration")
-    lns2 = ax1.plot(time, vel, color=(0.9290, 0.6940, 0.1250), label="Velocity")
-    
+    lns3 = ax1.plot(time, alt, color=(0, 0, 1),label="Altitude")
     ax2 = ax1.twinx()
-    ax2.set_ylabel("Altitude (ft)")
-    lns3 = ax2.plot(time, alt, color=(0, 0, 1),label="Altitude")
+    ax2.set_ylabel('Acceleration (ft/s²), Velocity (ft/s)')
+    lns1 = ax2.plot(time, accel, color=(0.9290, 0.6940, 0.1250), label="Acceleration")
+    lns2 = ax2.plot(time, vel, color=(1,0,0), label="Velocity")
     lns = lns1+lns2+lns3
     labs = [l.get_label() for l in lns]
     ax1.legend(lns, labs, loc=0)
+    ax1_ylims = ax1.axes.get_ylim()          
+    ax1_yratio = ax1_ylims[0] / ax1_ylims[1]  
 
+    ax2_ylims = ax2.axes.get_ylim()           
+    ax2_yratio = ax2_ylims[0] / ax2_ylims[1] 
+
+
+
+    if ax1_yratio < ax2_yratio: 
+        ax2.set_ylim(bottom = ax2_ylims[1]*ax1_yratio)
+    else:
+        ax1.set_ylim(bottom = ax1_ylims[1]*ax2_yratio)
     plt.suptitle("Flight Parameters against Time",
                 fontweight = 'bold')
     plt.title(str(speeds[i])+" mph " + str(angles[i]) + " Degrees")
     plt.show()
     
-    ke_ = 0.5 * vel[-1] ** 2 *  #Kinetic energy at landing in Newtons
+    final_vel = vel[-1]
     stability = testFlight.stability_margin(testFlight.out_of_rail_time)
-    print(stability)
+    descent_time = time[-1] - testFlight.apogee_time
+    apogee = (testFlight.apogee - env.elevation) * 3.28084
+    print(testFlight.apogee_time)
+    
 
 #wolf.draw()
 #testFlight.plots.trajectory_3d()
