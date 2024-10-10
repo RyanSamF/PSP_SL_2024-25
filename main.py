@@ -6,7 +6,7 @@ import pandas
 import yaml
 import math
 import matplotlib.pyplot as plt
-
+import csv
 
 angles = [5, 5, 7.5, 7.5, 10]
 speeds = [0, 5, 10, 15, 20]
@@ -99,6 +99,7 @@ fin_set = wolf.add_trapezoidal_fins(
 )
 main = wolf.add_parachute(
     name = "main",
+    lag=1,
     cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 / 39.37) ** 2 * math.pi,
     trigger = parachutes_data["main_trigger"] / 3.281 #altitude of main deployment ft -> meters
 )
@@ -107,7 +108,14 @@ drogue = wolf.add_parachute(
     cd_s = parachutes_data["drogue_cd"] * (parachutes_data["drogue_diameter"] / 2 / 39.37) ** 2 * math.pi,
     trigger = "apogee"
 )
-for i in range(0,1):
+
+final_vel = ["Final Velocity (ft/s)"]
+stability = ["Stability off rod (calibers)"]
+descent_time = ["Descent Time (seconds)"]
+apogee = ["Apogee (ft)"]
+distance = ["Drift Distance (ft)"]
+run_params = [""]
+for i in range(0,5):
     testFlight   = Flight(
         rocket = wolf, environment = env_arr[i], rail_length = 3.6576, inclination = 90 - angles[i]  , heading = 270)
     alt = []
@@ -131,7 +139,7 @@ for i in range(0,1):
     ax1.legend(lns, labs, loc=0)
     ax1_ylims = ax1.axes.get_ylim()          
     ax1_yratio = ax1_ylims[0] / ax1_ylims[1]  
-
+   
     ax2_ylims = ax2.axes.get_ylim()           
     ax2_yratio = ax2_ylims[0] / ax2_ylims[1] 
 
@@ -141,16 +149,37 @@ for i in range(0,1):
         ax2.set_ylim(bottom = ax2_ylims[1]*ax1_yratio)
     else:
         ax1.set_ylim(bottom = ax1_ylims[1]*ax2_yratio)
+    plt.axvline(testFlight.apogee_time, dashes=(2,3))
+    plt.text(testFlight.apogee_time + 0.1 ,100,'Apogee',rotation=90)
     plt.suptitle("Flight Parameters against Time",
                 fontweight = 'bold')
-    plt.title(str(speeds[i])+" mph " + str(angles[i]) + " Degrees")
+    plot_name = str(speeds[i])+" mph " + str(angles[i]) + " Degrees"
+    plt.title(plot_name)
     plt.show()
     
-    final_vel = vel[-1]
-    stability = testFlight.stability_margin(testFlight.out_of_rail_time)
-    descent_time = time[-1] - testFlight.apogee_time
-    apogee = (testFlight.apogee - env.elevation) * 3.28084
-    print(testFlight.apogee_time)
+    final_vel.append(vel[-1])
+    stability.append(testFlight.stability_margin(testFlight.out_of_rail_time))
+    descent_time.append(time[-1] - testFlight.apogee_time)
+    apogee.append((testFlight.apogee - env.elevation) * 3.28084)
+    distance.append(descent_time[-1] * speeds_ms[i] * 3.28084)
+    run_params.append(plot_name)
+
+end_results = [run_params, final_vel, stability, descent_time, apogee, distance]
+print([i for i in end_results])
+
+import csv
+
+# Specify the file name
+filename = "output.csv"
+
+# Open the file in write mode
+with open(filename, "w", newline="") as file:
+    writer = csv.writer(file)
+
+    # Write each row to the CSV file
+    writer.writerows(end_results)
+
+print(f"Data written to {filename}")
     
 
 #wolf.draw()
