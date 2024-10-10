@@ -5,10 +5,12 @@ import numpy as np
 import pandas
 import yaml
 import math
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
-wind_speed = 15 * 0.44704
-angle = 10
+
+angles = [5, 5, 7.5, 7.5, 10]
+speeds = [0, 5, 10, 15, 20]
+speeds_ms = [x * 0.44704 for x in speeds]
 
 with open('wolf_config.yaml', 'r') as file:
     data = yaml.safe_load(file)
@@ -33,18 +35,21 @@ time_drag = np.array(df[df.columns[0]].tolist())
 drag = np.array(df[df.columns[1]].tolist())
 drag_array = np.stack([time_drag, drag], 1)
 
-env = Environment(latitude = 34.894616, longitude = -86.616947)
-#URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
-env.set_date(
-    (2024, 4, 13, 6))
+
 #env.set_atmospheric_model(type ="wyoming_sounding", file = URL)
 #env.set_atmospheric_model(type = "Windy", file="")
-env.set_atmospheric_model(
-    type="custom_atmosphere",
-    wind_u = [(0, wind_speed), (2000, wind_speed)],
-    wind_v = [(0, 0), (2000, 0)]
+env_arr = []
+for wind_speed in speeds_ms:
+    env = Environment(latitude = 34.894616, longitude = -86.616947)
+    #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
+    env.set_date((2024, 4, 13, 6))
+    env.set_atmospheric_model(
+        type="custom_atmosphere",
+        wind_u = [(0, wind_speed), (2000, wind_speed)],
+        wind_v = [(0, 0), (2000, 0)]
                           )
-env.info()
+    env_arr.append(env)
+#env.info()
 #env.plots.all()
 airfoilLift = []
 for i in np.linspace(-10,10, 200):
@@ -102,23 +107,46 @@ drogue = wolf.add_parachute(
     cd_s = parachutes_data["drogue_cd"] * (parachutes_data["drogue_diameter"] / 2 / 39.37) ** 2 * math.pi,
     trigger = "apogee"
 )
-testFlight   = Flight(
-    rocket = wolf, environment = env, rail_length = 3.6576, inclination = 90 - angle  , heading = 270
-)
+for i in range(0,1):
+    testFlight   = Flight(
+        rocket = wolf, environment = env_arr[i], rail_length = 3.6576, inclination = 90 - angles[i]  , heading = 270)
+    print((testFlight.apogee - env.elevation) * 3.28084)
+    print((testFlight.apogee - env.elevation))
+    alt = []
+    accel = []
+    vel = []
+    time = testFlight.time
+    for index in time:
+        alt.append(testFlight.altitude(index) * 3.28084)
+        accel.append(testFlight.az(index) * 3.28084 )
+        vel.append(testFlight.vz(index) *  3.28084)
+    fig, ax1 = plt.subplots()
+    ax1.set_xlabel('time (s)')
+    ax1.set_ylabel('Acceleration (ft/s²), Velocity (ft/s)')
+    lns1 = ax1.plot(time, accel, color=(1,0,0), label="Acceleration")
+    lns2 = ax1.plot(time, vel, color=(0.9290, 0.6940, 0.1250), label="Velocity")
+    
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Altitude (ft)")
+    lns3 = ax2.plot(time, alt, color=(0, 0, 1),label="Altitude")
+    lns = lns1+lns2+lns3
+    labs = [l.get_label() for l in lns]
+    ax1.legend(lns, labs, loc=0)
+
+    plt.suptitle("Flight Parameters against Time",
+                fontweight = 'bold')
+    plt.title(str(speeds[i])+" mph " + str(angles[i]) + " Degrees")
+    plt.show()
+    
+    ke_ = 0.5 * vel[-1] ** 2 *  #Kinetic energy at landing in Newtons
+    stability = testFlight.stability_margin(testFlight.out_of_rail_time)
+    print(stability)
 
 #wolf.draw()
 #testFlight.plots.trajectory_3d()
 #testFlight.plots.all()
 #testFlight.plots.aerodynamic_forces()
 #testFlight.prints.all()
-print((testFlight.apogee - env.elevation) * 3.28084)
-print((testFlight.apogee - env.elevation))
-alt = []
-time = testFlight.time
-for index in time:
-    alt.append(testFlight.altitude(index) * 3.28084)
 
-plt.pyplot.plot(time, alt)
-plt.pyplot.show()
 
     

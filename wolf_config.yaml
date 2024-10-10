@@ -22,6 +22,7 @@ rocket:
   inertia: [180.28, 180.28, 1.16] #moment of inertia in lbs*ft^2
   COM: 52.749 #center of mass from nose without motor in inches
   length: 95.598 #length of rocket in inches
+  largest_mass: 
 
 nose_cone:
   length: 11 #length of nose cone in inches
