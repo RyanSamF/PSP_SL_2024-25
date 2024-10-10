@@ -11,7 +11,7 @@ import csv
 angles = [5, 5, 7.5, 7.5, 10]
 speeds = [0, 5, 10, 15, 20]
 speeds_ms = [x * 0.44704 for x in speeds]
-
+print(speeds_ms)
 with open('wolf_config.yaml', 'r') as file:
     data = yaml.safe_load(file)
 
@@ -45,9 +45,10 @@ for wind_speed in speeds_ms:
     env.set_date((2024, 4, 13, 6))
     env.set_atmospheric_model(
         type="custom_atmosphere",
-        wind_u = [(0, wind_speed), (2000, wind_speed)],
-        wind_v = [(0, 0), (2000, 0)]
-                          )
+        wind_u = [(0, wind_speed), (5000, wind_speed)],
+        wind_v = [(0, 0), (5000, 0)],
+        pressure=None,
+        temperature=None)
     env_arr.append(env)
 #env.info()
 #env.plots.all()
@@ -57,7 +58,7 @@ for i in np.linspace(-10,10, 200):
 
 airfoilLift = np.array(airfoilLift) 
 
-l1482 = GenericMotor(
+L930 = GenericMotor(
     coordinate_system_orientation= "nozzle_to_combustion_chamber",
     thrust_source = thrust_array,
     dry_mass = (motor_data["net_mass"] - motor_data["prop_mass"]) * 0.4536, #lbs -> kg
@@ -74,13 +75,13 @@ l1482 = GenericMotor(
 wolf = Rocket(
     radius = rocket_data["radius"] / 39.37, #radius in -> meters
     mass = (rocket_data["mass"] / 2.2046), #mass lbs -> kg
-    inertia = rocket_data["inertia"], #inertia lbs/ft^2 -> kg/m^2
+    inertia = np.array(rocket_data["inertia"]) * 0.0421401101, #inertia lbs/ft^2 -> kg/m^2
     power_off_drag = drag_array,
     power_on_drag = drag_array,
     coordinate_system_orientation = "nose_to_tail",
     center_of_mass_without_motor = rocket_data["COM"] / 39.37 #in -> meters
 )
-wolf.add_motor( l1482, 92.5 / 39.37) #position of motor in rocket
+wolf.add_motor( L930, 92.5 / 39.37) #position of motor in rocket
 
 nose_cone = wolf.add_nose(
     length = nose_data["length"] / 39.37,
@@ -99,12 +100,12 @@ fin_set = wolf.add_trapezoidal_fins(
 )
 main = wolf.add_parachute(
     name = "main",
-    lag=1,
     cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 / 39.37) ** 2 * math.pi,
     trigger = parachutes_data["main_trigger"] / 3.281 #altitude of main deployment ft -> meters
 )
 drogue = wolf.add_parachute(
     name = "drogue",
+    lag = 1,
     cd_s = parachutes_data["drogue_cd"] * (parachutes_data["drogue_diameter"] / 2 / 39.37) ** 2 * math.pi,
     trigger = "apogee"
 )
@@ -143,6 +144,7 @@ for i in range(0,5):
     ax2_ylims = ax2.axes.get_ylim()           
     ax2_yratio = ax2_ylims[0] / ax2_ylims[1] 
 
+    
 
 
     if ax1_yratio < ax2_yratio: 
@@ -154,9 +156,10 @@ for i in range(0,5):
     plt.suptitle("Flight Parameters against Time",
                 fontweight = 'bold')
     plot_name = str(speeds[i])+" mph " + str(angles[i]) + " Degrees"
+    plt.xlim((0, time[-1]))
     plt.title(plot_name)
-    plt.show()
-    
+    #plt.show()
+
     final_vel.append(vel[-1])
     stability.append(testFlight.stability_margin(testFlight.out_of_rail_time))
     descent_time.append(time[-1] - testFlight.apogee_time)
