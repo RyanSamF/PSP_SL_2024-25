@@ -7,7 +7,7 @@ import yaml
 import math
 import matplotlib as plt
 
-wind_speed = 20 * 0.44704
+wind_speed = 15 * 0.44704
 angle = 10
 
 with open('wolf_config.yaml', 'r') as file:
