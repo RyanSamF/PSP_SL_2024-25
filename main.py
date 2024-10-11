@@ -151,14 +151,14 @@ for i in range(0,5):
         ax2.set_ylim(bottom = ax2_ylims[1]*ax1_yratio)
     else:
         ax1.set_ylim(bottom = ax1_ylims[1]*ax2_yratio)
-    plt.axvline(testFlight.apogee_time, dashes=(2,3))
     plt.text(testFlight.apogee_time + 0.1 ,100,'Apogee',rotation=90)
     plt.suptitle("Flight Parameters against Time",
                 fontweight = 'bold')
     plot_name = str(speeds[i])+" mph " + str(angles[i]) + " Degrees"
     plt.xlim((0, time[-1]))
     plt.title(plot_name)
-    #plt.show()
+    plt.grid()
+    plt.show()
 
     final_vel.append(vel[-1])
     stability.append(testFlight.stability_margin(testFlight.out_of_rail_time))
