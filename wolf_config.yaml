@@ -2,15 +2,14 @@
 ---
 #Files for Motor
 githubfiles:
-  thrusturl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/CSV_files/Wolf_thrust.csv' #url for thrust
-  dragurl: 'https://raw.githubusercontent.com/RyanSamF/PSP_SL_2024-25/main/CSV_files/wolf_cd_openrocket.csv' #url for drag
+  thrusturl: 'CSV_files/Wolf_thrust.csv' #url for thrust
+  dragurl: 'CSV_files/wolf_cd_openrocket.csv' #url for drag
 
 motor:
   net_mass: 7.8 #mass of motor with propellant in lbs
   prop_mass: 4.01 #mass of propellant in lbs
-  center_of_dry_mass: 9.843 #distance from nozzle of center of mass of motor without propellant in in
-  dry_inertia: [1.22, 1.22, 0.042] #moment of inertia without propellant in lbs*ft^2 
-  #INERTIA NUMBERS NOT UPDATED
+  center_of_dry_mass: 8.5 #distance from nozzle of center of mass of motor without propellant in in
+  dry_inertia: [1.77, 1.77, 0.042] #moment of inertia without propellant in lbs*ft^2 
   chamber_rad: 1.379 #radius of inside of propellant chamber in in
   chamber_height: 15.748 #height of propellant chamber in inches
   chamber_pos: 8.5 #position of center of propellant chamber inches
@@ -20,7 +19,7 @@ rocket:
   radius: 2.575 #radius of rocket in in
   mass: 28.5 #mass in lbs
   inertia: [180.28, 180.28, 1.16] #moment of inertia in lbs*ft^2
-  COM: 52.749 #center of mass from nose without motor in inches
+  COM: 47.865 #center of mass from nose without motor in inches
   length: 95.598 #length of rocket in inches
 
 nose_cone:
