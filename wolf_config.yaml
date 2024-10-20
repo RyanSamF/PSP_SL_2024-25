@@ -16,6 +16,9 @@ motor:
   nozzle_rad: 0.625 #radius of nozzle in inches
 
 rocket:
+  uppersec: 10.385 #mass of upper section in lbs
+  midsec: 7.921  #mass of middle section in lbs
+  booster: 16.05  #mass of booster section in lbs
   radius: 2.575 #radius of rocket in in
   mass: 28.5 #mass in lbs
   inertia: [180.28, 180.28, 1.16] #moment of inertia in lbs*ft^2
@@ -34,9 +37,9 @@ fins:
   sweep: 1.82 #sweep length of fins in inches  
 
 parachutes:
-  drogue_cd: 0.61  #coefficient of drag of drogue parachute
+  drogue_cd: 1  #coefficient of drag of drogue parachute
   drogue_diameter: 18 #diameter of drogue parachute in inches
-  main_cd: 2.2 #coefficient of drag of main parachute 
+  main_cd: 1.6 #coefficient of drag of main parachute 
   main_diameter: 120 #diameter of main parachute in inches
   main_trigger: 540 #trigger height for main parachute in ft
 

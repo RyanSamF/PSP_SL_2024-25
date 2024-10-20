@@ -23,7 +23,9 @@ fins_data = data["fins"]
 parachutes_data = data["parachutes"]
 
 thrusturl = files_data["thrusturl"]
-
+boostermass = rocket_data["booster"]
+avionicsmass = rocket_data["midsec"]
+nosemass = rocket_data["uppersec"]
 #df = pandas.read_csv(thrusturl, index_col=None)
 #time_thrust = np.array(df[df.columns[0]].tolist())
 #thrust = np.array(df[df.columns[1]].tolist())
@@ -97,12 +99,13 @@ fin_set = wolf.add_trapezoidal_fins(
     position = fins_data["position"] / 39.37, #in -> meters
     span = fins_data["span"] / 39.37, #in -> meters
     sweep_length = 3.7 / 39.37,
-    #airfoil = (airfoilLift, "degrees")
+    #   airfoil = (airfoilLift, "degrees")
 )
 main = wolf.add_parachute(
     name = "main",
     cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 / 39.37) ** 2 * math.pi,
-    trigger = parachutes_data["main_trigger"] / 3.281 #altitude of main deployment ft -> meters
+    trigger = parachutes_data["main_trigger"] / 3.281, #altitude of main deployment ft -> meters
+    lag = 0.5
 )
 drogue = wolf.add_parachute(
     name = "drogue",
@@ -116,6 +119,9 @@ stability = ["Stability off rod (calibers)"]
 descent_time = ["Descent Time (seconds)"]
 apogee = ["Apogee (ft)"]
 distance = ["Drift Distance (ft)"]
+max_mach = ["Max Mach Number"]
+max_vel = ["Max Velocity (ft/s)"]
+max_accel = ["Max Acceleration (ft/s)"]
 run_params = [""]
 for i in range(0,5):
     testFlight   = Flight(
@@ -123,11 +129,13 @@ for i in range(0,5):
     alt = []
     accel = []
     vel = []
+    mach_num = []
     time = testFlight.time
     for index in time:
         alt.append(testFlight.altitude(index) * 3.28084)
         accel.append(testFlight.az(index) * 3.28084 )
         vel.append(testFlight.vz(index) *  3.28084)
+        mach_num.append(testFlight.mach_number(index))
     fig, ax1 = plt.subplots()
     ax1.set_ylabel("Altitude (ft)")
     ax1.set_xlabel('time (s)')
@@ -144,7 +152,6 @@ for i in range(0,5):
    
     ax2_ylims = ax2.axes.get_ylim()           
     ax2_yratio = ax2_ylims[0] / ax2_ylims[1] 
-
     
 
 
@@ -158,16 +165,21 @@ for i in range(0,5):
     plt.xlim((0, time[-1]))
     plt.title(plot_name)
     plt.grid()
-    #plt.show()
+    plt.show()
     final_vel.append(vel[-1])
-    stability.append(testFlight.min_stability_margin)
+    stability.append(testFlight.stability_margin(testFlight.out_of_rail_time))
     descent_time.append(time[-1] - testFlight.apogee_time)
     apogee.append((testFlight.apogee - env.elevation) * 3.28084)
     distance.append(descent_time[-1] * speeds_ms[i] * 3.28084)
     run_params.append(plot_name)
-
-end_results = [run_params, final_vel, descent_time, apogee, distance] #stability removed
-print([i for i in end_results])
+    max_mach.append(max(mach_num))
+    max_vel.append(max(test))
+    max_accel.append(max(accel))
+print(stability)
+end_results = [run_params, final_vel, descent_time, apogee, distance, max_vel, max_accel, max_mach] #stability removed
+#print([i for i in end_results])
+#print(descent_time)
+#print(testFlight.parachute_events)
 
 import csv
 
