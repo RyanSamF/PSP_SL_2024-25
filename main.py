@@ -7,7 +7,9 @@ import yaml
 import math
 import matplotlib.pyplot as plt
 import csv
-
+feet2meters = 3.28084
+in2meters = 1 / 39.37
+lbs2kg = 0.4536
 angles = [5, 5, 7.5, 7.5, 10]
 speeds = [0, 5, 10, 15, 20]
 speeds_ms = [x * 0.44704 for x in speeds]
@@ -31,7 +33,7 @@ nosemass = rocket_data["uppersec"]
 #thrust = np.array(df[df.columns[1]].tolist())
 #thrust_array = np.stack([time_thrust, thrust], 1)
 #thrust_array = "CSV_files/Wolf_thrust.csv"
-
+m_heav = rocket_data["h_section"]
 dragurl = files_data["dragurl"]
 #df = pandas.read_csv(dragurl, index_col=None)
 #time_drag = np.array(df[df.columns[0]].tolist())
@@ -64,53 +66,53 @@ airfoilLift = np.array(airfoilLift)
 L930 = GenericMotor(
     coordinate_system_orientation= "nozzle_to_combustion_chamber",
     thrust_source = thrusturl,
-    dry_mass = (motor_data["net_mass"] - motor_data["prop_mass"]) * 0.4536, #lbs -> kg
-    propellant_initial_mass = motor_data["prop_mass"] * 0.4536, #kg
+    dry_mass = (motor_data["net_mass"] - motor_data["prop_mass"]) * lbs2kg, #lbs -> kg
+    propellant_initial_mass = motor_data["prop_mass"] * lbs2kg, #lbs -> kg
     #center_of_dry_mass_position = motor_data["center_of_dry_mass"] / 39.37, #in -> m
     #dry_inertia = (1.22 / 4.882, 1.22 / 4.882, 0.042 / 4.882),
-    chamber_radius= motor_data["chamber_rad"] /39.37  ,#in to meters
-    chamber_height = motor_data["chamber_height"] / 39.37, #in to meters
-    chamber_position = motor_data["center_of_dry_mass"] / 39.37, #in to meters
-    nozzle_radius = motor_data["nozzle_rad"] / 39.37, #in to meters
+    chamber_radius= motor_data["chamber_rad"] * in2meters ,#in to meters
+    chamber_height = motor_data["chamber_height"] * in2meters, #in to meters
+    chamber_position = motor_data["center_of_dry_mass"] * in2meters, #in to meters
+    nozzle_radius = motor_data["nozzle_rad"] * in2meters, #in to meters
     burn_time = None
 )
 
 wolf = Rocket(
-    radius = rocket_data["radius"] / 39.37, #radius in -> meters
-    mass = (rocket_data["mass"] / 2.2046), #mass lbs -> kg
-    inertia = np.array(rocket_data["inertia"]) * 0.0421401101, #inertia lbs/ft^2 -> kg/m^2
+    radius = rocket_data["radius"] * in2meters, #radius in -> meters
+    mass = (rocket_data["mass"] * lbs2kg), #mass lbs -> kg
+    inertia = np.array(rocket_data["inertia"]) * lbs2kg / feet2meters**2, #inertia lbs/ft^2 -> kg/m^2
     power_off_drag = dragurl,
     power_on_drag = dragurl,
     coordinate_system_orientation = "nose_to_tail",
-    center_of_mass_without_motor = rocket_data["COM"] / 39.37 #in -> meters
+    center_of_mass_without_motor = rocket_data["COM"] * in2meters #in -> meters
 )
-wolf.add_motor( L930, 92.5 / 39.37) #position of motor in rocket
+wolf.add_motor( L930, 92.5 * in2meters) #position of motor in rocket
 
 nose_cone = wolf.add_nose(
-    length = nose_data["length"] / 39.37,
+    length = nose_data["length"] * in2meters,
     kind = "von karman",
     position = 0
 )
 
 fin_set = wolf.add_trapezoidal_fins(
     n = fins_data["n"], #number of fins
-    root_chord = fins_data["root_chord"] / 39.37, #in -> meters
-    tip_chord = fins_data["tip_chord"] / 39.37, #in -> meters
-    position = fins_data["position"] / 39.37, #in -> meters
-    span = fins_data["span"] / 39.37, #in -> meters
-    sweep_length = 3.7 / 39.37,
+    root_chord = fins_data["root_chord"] * in2meters, #in -> meters
+    tip_chord = fins_data["tip_chord"] * in2meters, #in -> meters
+    position = fins_data["position"] * in2meters, #in -> meters
+    span = fins_data["span"] * in2meters, #in -> meters
+    sweep_length = fins_data["sweep"] * in2meters,
     #   airfoil = (airfoilLift, "degrees")
 )
 main = wolf.add_parachute(
     name = "main",
-    cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 / 39.37) ** 2 * math.pi,
+    cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 * in2meters) ** 2 * math.pi,
     trigger = parachutes_data["main_trigger"] / 3.281, #altitude of main deployment ft -> meters
     lag = 0.5
 )
 drogue = wolf.add_parachute(
     name = "drogue",
     lag = 1,
-    cd_s = parachutes_data["drogue_cd"] * (parachutes_data["drogue_diameter"] / 2 / 39.37) ** 2 * math.pi,
+    cd_s = parachutes_data["drogue_cd"] * (parachutes_data["drogue_diameter"] / 2 * in2meters) ** 2 * math.pi,
     trigger = "apogee"
 )
 #wolf.draw()
@@ -122,6 +124,7 @@ distance = ["Drift Distance (ft)"]
 max_mach = ["Max Mach Number"]
 max_vel = ["Max Velocity (ft/s)"]
 max_accel = ["Max Acceleration (ft/s)"]
+max_ke = ["Max Kinetic Energy (ft-lbf)"]
 run_params = [""]
 for i in range(0,5):
     testFlight   = Flight(
@@ -132,9 +135,9 @@ for i in range(0,5):
     mach_num = []
     time = testFlight.time
     for index in time:
-        alt.append(testFlight.altitude(index) * 3.28084)
-        accel.append(testFlight.az(index) * 3.28084 )
-        vel.append(testFlight.vz(index) *  3.28084)
+        alt.append(testFlight.altitude(index) * feet2meters)
+        accel.append(testFlight.az(index) * feet2meters )
+        vel.append(testFlight.vz(index) * feet2meters)
         mach_num.append(testFlight.mach_number(index))
     fig, ax1 = plt.subplots()
     ax1.set_ylabel("Altitude (ft)")
@@ -165,18 +168,20 @@ for i in range(0,5):
     plt.xlim((0, time[-1]))
     plt.title(plot_name)
     plt.grid()
-    plt.show()
+    #plt.show()
     final_vel.append(vel[-1])
     stability.append(testFlight.stability_margin(testFlight.out_of_rail_time))
     descent_time.append(time[-1] - testFlight.apogee_time)
-    apogee.append((testFlight.apogee - env.elevation) * 3.28084)
-    distance.append(descent_time[-1] * speeds_ms[i] * 3.28084)
+    apogee.append((testFlight.apogee - env.elevation) * feet2meters)
+    distance.append(descent_time[-1] * speeds_ms[i] * feet2meters)
     run_params.append(plot_name)
     max_mach.append(max(mach_num))
-    max_vel.append(max(test))
+    max_vel.append(max(vel))
     max_accel.append(max(accel))
+    max_ke.append(0.5 * vel[-1] ** 2 * m_heav / 32.17)
+    print(testFlight.out_of_rail_velocity * feet2meters)
 print(stability)
-end_results = [run_params, final_vel, descent_time, apogee, distance, max_vel, max_accel, max_mach] #stability removed
+end_results = [run_params, final_vel, descent_time, apogee, distance, max_vel, max_accel, max_mach, max_ke] #stability removed
 #print([i for i in end_results])
 #print(descent_time)
 #print(testFlight.parachute_events)

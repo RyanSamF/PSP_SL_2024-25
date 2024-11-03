@@ -20,6 +20,7 @@ rocket:
   midsec: 7.921  #mass of middle section in lbs
   booster: 16.05  #mass of booster section in lbs
   radius: 2.575 #radius of rocket in in
+  h_section: 16.038 #heaviest section of rocket in lbs
   mass: 28.5 #mass in lbs
   inertia: [180.28, 180.28, 1.16] #moment of inertia in lbs*ft^2
   COM: 47.865 #center of mass from nose without motor in inches
