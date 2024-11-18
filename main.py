@@ -15,7 +15,7 @@ angles = [5, 5, 7.5, 7.5, 10]
 speeds = [0, 5, 10, 15, 20]
 speeds_ms = [x * 0.44704 for x in speeds]
 print(speeds_ms)
-with open('wolf_config.yaml', 'r') as file:
+with open('ConfigFiles/subscale.yaml', 'r') as file:
     data = yaml.safe_load(file)
 
 files_data = data["githubfiles"]
@@ -104,18 +104,20 @@ fin_set = wolf.add_trapezoidal_fins(
     sweep_length = fins_data["sweep"] * in2meters,
     #   airfoil = (airfoilLift, "degrees")
 )
-main = wolf.add_parachute(
-    name = "main",
-    cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 * in2meters) ** 2 * math.pi,
-    trigger = parachutes_data["main_trigger"] / 3.281, #altitude of main deployment ft -> meters
-    lag = 0.5
-)
-drogue = wolf.add_parachute(
-    name = "drogue",
-    lag = 1,
-    cd_s = parachutes_data["drogue_cd"] * (parachutes_data["drogue_diameter"] / 2 * in2meters) ** 2 * math.pi,
-    trigger = "apogee"
-)
+if parachutes_data["main_present"]:
+    main = wolf.add_parachute(
+        name = "main",
+        cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 * in2meters) ** 2 * math.pi,
+        trigger = parachutes_data["main_trigger"] / 3.281, #altitude of main deployment ft -> meters
+        lag = 0.5
+    )
+if parachutes_data["drogue_present"]:
+    drogue = wolf.add_parachute(
+        name = "drogue",
+        lag = 1,
+        cd_s = parachutes_data["drogue_cd"] * (parachutes_data["drogue_diameter"] / 2 * in2meters) ** 2 * math.pi,
+        trigger = "apogee"
+    )
 #wolf.draw()
 
 def multi_sim():
@@ -171,7 +173,7 @@ def multi_sim():
         plt.xlim((0, time[-1]))
         plt.title(plot_name)
         plt.grid()
-        #plt.show()
+        plt.show()
         final_vel.append(vel[-1])
         stability.append(testFlight.stability_margin(testFlight.out_of_rail_time))
         descent_time.append(time[-1] - testFlight.apogee_time)
@@ -202,7 +204,9 @@ def multi_sim():
         writer.writerows(end_results)
 
     print(f"Data written to {filename}")
-    
+
+
+#NOT WORKING YET    
 def mc_sim(angle, wind_speed):
     env = rp.Environment(latitude = 20.6, longitude = -80.6)
     #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
@@ -221,12 +225,13 @@ def mc_sim(angle, wind_speed):
     sim = rp.simulation.MonteCarlo("mc",s_env, s_wolf, s_flight)
     sim.simulate(100, False)
     sim.all_info()
+
 print(rp.__file__)
 filename = "output.csv"
 # opening the file with w+ mode truncates the file
 f = open(filename, "w+")
 f.close()
-mc_sim(0, 5)
+multi_sim()
 #wolf.draw()
 #testFlight.plots.trajectory_3d()
 #testFlight.plots.all()
