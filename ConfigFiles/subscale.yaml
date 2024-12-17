@@ -16,15 +16,15 @@ motor:
   nozzle_rad: 0.5 #radius of nozzle in inches
 
 rocket:
-  uppersec: 10.385 #mass of upper section in lbs
-  midsec: 7.921  #mass of middle section in lbs
-  booster: 16.05  #mass of booster section in lbs
+  uppersec: 3.975 #mass of upper section in lbs
+  midsec: 0  #mass of middle section in lbs
+  booster: 2.994  #mass of booster section in lbs
   radius: 1.56 #radius of rocket in in
-  h_section: 16.038 #heaviest section of rocket in lbs
-  mass: 9.88 #mass in lbs
-  inertia: [17.58, 17.58, 0.14] #moment of inertia in lbs*ft^2
-  COM: 31.541 #center of mass from nose without motor in inches
-  length: 57.159 #length of rocket in inches
+  h_section: 3.975 #heaviest section of rocket in lbs
+  mass: 8.5 #mass in lbs
+  inertia: [16, 16, 0.14] #moment of inertia in lbs*ft^2
+  COM: 34.241 #center of mass from nose without motor in inches
+  length: 57.559 #length of rocket in inches
 
 nose_cone:
   length: 6.6 #length of nose cone in inches
@@ -33,7 +33,7 @@ fins:
   n: 3 #number of fins
   root_chord: 3.3 #root chord in inches
   tip_chord: 1.2 #length of tip chord in inches
-  position: 54.159 #position of top of fins in inches
+  position: 54.259 #position of top of fins in inches
   span: 3.72 #span of fin in inches
   sweep: 1.092 #sweep length of fins in inches  
 

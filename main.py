@@ -11,11 +11,8 @@ import csv
 feet2meters = 3.28084
 in2meters = 1 / 39.37
 lbs2kg = 0.4536
-angles = [5, 5, 7.5, 7.5, 10]
-speeds = [0, 5, 10, 15, 20]
-speeds_ms = [x * 0.44704 for x in speeds]
-print(speeds_ms)
-with open('ConfigFiles/subscale.yaml', 'r') as file:
+
+with open('ConfigFiles/wolf_config.yaml', 'r') as file:
     data = yaml.safe_load(file)
 
 files_data = data["githubfiles"]
@@ -41,21 +38,14 @@ dragurl = files_data["dragurl"]
 #drag = np.array(df[df.columns[1]].tolist())
 #drag_array = np.stack([time_drag, drag], 1)
 
-
+## REAL
+#env = rp.Environnment(latitude = XX, longitude = XX)
+#URL = "https://weather.uwyo.edu/cgi-bin/sounding?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=11&FROM=1700&TO=1712&STNM=72426"
 #env.set_atmospheric_model(type ="wyoming_sounding", file = URL)
 #env.set_atmospheric_model(type = "Windy", file="")
-env_arr = []
-for wind_speed in speeds_ms:
-    env = rp.Environment(latitude = 20.6, longitude = -80.6)
-    #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
-    env.set_date((2024, 4, 13, 6))
-    env.set_atmospheric_model(
-        type="custom_atmosphere",
-        wind_u = [(0, wind_speed), (5000, wind_speed)],
-        wind_v = [(0, 0), (5000, 0)],
-        pressure=None,
-        temperature=None)
-    env_arr.append(env)
+
+
+
 #env.info()
 #env.plots.all()
 airfoilLift = []
@@ -120,7 +110,64 @@ if parachutes_data["drogue_present"]:
     )
 #wolf.draw()
 
-def multi_sim():
+def prof_graph(drift, alt, plt_title):
+    fig, ax1 = plt.subplots()
+    ax1.set_ylabel("Altitude (ft)")
+    ax1.set_xlabel('Drift Distance (ft)')
+    lns3 = ax1.plot(drift, alt, color=(0, 0, 1))
+    plt.suptitle("Flight Profile",
+        fontweight = 'bold')
+    plt.title(plt_title)
+    plt.grid()
+    plt.savefig('Plots/' + plt_title + " Profile.png", format='png')
+    
+
+def param_graph(time, alt, vel, accel, ws, angle):
+    fig, ax1 = plt.subplots()
+    ax1.set_ylabel("Altitude (ft)")
+    ax1.set_xlabel('time (s)')
+    lns3 = ax1.plot(time, alt, color=(0, 0, 1),label="Altitude")
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('Acceleration (ft/s²), Velocity (ft/s)')
+    lns1 = ax2.plot(time, accel, color=(0.9290, 0.6940, 0.1250), label="Acceleration")
+    lns2 = ax2.plot(time, vel, color=(1,0,0), label="Velocity")
+    lns = lns1+lns2+lns3
+    labs = [l.get_label() for l in lns]
+    ax1.legend(lns, labs, loc=0)
+    ax1_ylims = ax1.axes.get_ylim()          
+    ax1_yratio = ax1_ylims[0] / ax1_ylims[1]  
+
+    ax2_ylims = ax2.axes.get_ylim()           
+    ax2_yratio = ax2_ylims[0] / ax2_ylims[1] 
+
+    if ax1_yratio < ax2_yratio: 
+        ax2.set_ylim(bottom = ax2_ylims[1]*ax1_yratio)
+    else:
+        ax1.set_ylim(bottom = ax1_ylims[1]*ax2_yratio)
+    plt.suptitle("Flight Parameters against Time",
+                fontweight = 'bold')
+    plot_name = str(ws)+" mph " + str(angle) + " Degrees"
+    plt.xlim((0, time[-1]))
+    plt.title(plot_name)
+    plt.grid()
+    plt.savefig('Plots/' + plot_name + " Parameters.png", format='png')
+    return(plot_name)
+
+
+def multi_sim(angles, speeds, graphs):
+    speeds_ms = [x * 0.44704 for x in speeds]
+    env_arr = []
+    for wind_speed in speeds_ms:
+        env = rp.Environment(latitude = 20.6, longitude = -80.6)
+        #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
+        env.set_date((2024, 4, 13, 6))
+        env.set_atmospheric_model(
+            type="custom_atmosphere",
+            wind_u = [(0, wind_speed), (5000, wind_speed)],
+            wind_v = [(0, 0), (5000, 0)],
+            pressure=None,
+            temperature=None)
+        env_arr.append(env)
     final_vel = ["Final Velocity (ft/s)"]
     stability = ["Stability off rod (calibers)"]
     descent_time = ["Descent Time (seconds)"]
@@ -138,47 +185,27 @@ def multi_sim():
         accel = []
         vel = []
         mach_num = []
+        drift = []
         time = testFlight.time
         for index in time:
             alt.append(testFlight.altitude(index) * feet2meters)
             accel.append(testFlight.az(index) * feet2meters )
             vel.append(testFlight.vz(index) * feet2meters)
             mach_num.append(testFlight.mach_number(index))
-        fig, ax1 = plt.subplots()
-        ax1.set_ylabel("Altitude (ft)")
-        ax1.set_xlabel('time (s)')
-        lns3 = ax1.plot(time, alt, color=(0, 0, 1),label="Altitude")
-        ax2 = ax1.twinx()
-        ax2.set_ylabel('Acceleration (ft/s²), Velocity (ft/s)')
-        lns1 = ax2.plot(time, accel, color=(0.9290, 0.6940, 0.1250), label="Acceleration")
-        lns2 = ax2.plot(time, vel, color=(1,0,0), label="Velocity")
-        lns = lns1+lns2+lns3
-        labs = [l.get_label() for l in lns]
-        ax1.legend(lns, labs, loc=0)
-        ax1_ylims = ax1.axes.get_ylim()          
-        ax1_yratio = ax1_ylims[0] / ax1_ylims[1]  
-    
-        ax2_ylims = ax2.axes.get_ylim()           
-        ax2_yratio = ax2_ylims[0] / ax2_ylims[1] 
-        
+            drift.append(-1 * testFlight.x(index) * feet2meters)
+            if index == testFlight.apogee_time:
+                apo_index = len(drift)
+        if graphs == 1:
+            plot_name = param_graph(time, alt, vel, accel, speeds[i], angles[i])
+            prof_graph(drift, alt, plot_name)
+            
+            
 
-
-        if ax1_yratio < ax2_yratio: 
-            ax2.set_ylim(bottom = ax2_ylims[1]*ax1_yratio)
-        else:
-            ax1.set_ylim(bottom = ax1_ylims[1]*ax2_yratio)
-        plt.suptitle("Flight Parameters against Time",
-                    fontweight = 'bold')
-        plot_name = str(speeds[i])+" mph " + str(angles[i]) + " Degrees"
-        plt.xlim((0, time[-1]))
-        plt.title(plot_name)
-        plt.grid()
-        plt.show()
         final_vel.append(vel[-1])
         stability.append(testFlight.stability_margin(testFlight.out_of_rail_time))
         descent_time.append(time[-1] - testFlight.apogee_time)
         apogee.append((testFlight.apogee - env.elevation) * feet2meters)
-        distance.append(descent_time[-1] * speeds_ms[i] * feet2meters)
+        distance.append(abs(drift[-1]-drift[apo_index]))
         run_params.append(plot_name)
         max_mach.append(max(mach_num))
         max_vel.append(max(vel))
@@ -194,6 +221,82 @@ def multi_sim():
 
 
     # Specify the file name
+    filename = "output.csv"
+
+    # Open the file in write mode
+    with open(filename, "w", newline="") as file:
+        writer = csv.writer(file)
+
+        # Write each row to the CSV file
+        writer.writerows(end_results)
+
+    print(f"Data written to {filename}")
+
+def sound_sim(s_env, angle):
+    final_vel = ["Final Velocity (ft/s)"]
+    stability = ["Stability off rod (calibers)"]
+    descent_time = ["Descent Time (seconds)"]
+    apogee = ["Apogee (ft)"]
+    distance = ["Drift Distance (ft)"]
+    max_mach = ["Max Mach Number"]
+    max_vel = ["Max Velocity (ft/s)"]
+    max_accel = ["Max Acceleration (ft/s)"]
+    max_ke = ["Max Kinetic Energy (ft-lbf)"]
+    run_params = [""]
+    testFlight   = rp.Flight(
+    rocket = wolf, environment = s_env, rail_length = 3.6576, inclination = 90 - angle , heading = 270)
+    alt = []
+    accel = []
+    vel = []
+    mach_num = []
+    time = testFlight.time
+    for index in time:
+        alt.append(testFlight.altitude(index) * feet2meters)
+        accel.append(testFlight.az(index) * feet2meters )
+        vel.append(testFlight.vz(index) * feet2meters)
+        mach_num.append(testFlight.mach_number(index))
+    fig, ax1 = plt.subplots()
+    ax1.set_ylabel("Altitude (ft)")
+    ax1.set_xlabel('time (s)')
+    lns3 = ax1.plot(time, alt, color=(0, 0, 1),label="Altitude")
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('Acceleration (ft/s²), Velocity (ft/s)')
+    lns1 = ax2.plot(time, accel, color=(0.9290, 0.6940, 0.1250), label="Acceleration")
+    lns2 = ax2.plot(time, vel, color=(1,0,0), label="Velocity")
+    lns = lns1+lns2+lns3
+    labs = [l.get_label() for l in lns]
+    ax1.legend(lns, labs, loc=0)
+    ax1_ylims = ax1.axes.get_ylim()          
+    ax1_yratio = ax1_ylims[0] / ax1_ylims[1]  
+
+    ax2_ylims = ax2.axes.get_ylim()           
+    ax2_yratio = ax2_ylims[0] / ax2_ylims[1] 
+    
+
+
+    if ax1_yratio < ax2_yratio: 
+        ax2.set_ylim(bottom = ax2_ylims[1]*ax1_yratio)
+    else:
+        ax1.set_ylim(bottom = ax1_ylims[1]*ax2_yratio)
+    plt.suptitle("Flight Parameters against Time",
+                fontweight = 'bold')
+    plot_name = str(speeds[i])+" mph " + str(angles[i]) + " Degrees"
+    plt.xlim((0, time[-1]))
+    plt.title(plot_name)
+    plt.grid()
+    plt.show()
+    final_vel.append(vel[-1])
+    stability.append(testFlight.stability_margin(testFlight.out_of_rail_time))
+    descent_time.append(time[-1] - testFlight.apogee_time)
+    apogee.append((testFlight.apogee - env.elevation) * feet2meters)
+    distance.append(descent_time[-1] * speeds_ms[i] * feet2meters)
+    run_params.append(plot_name)
+    max_mach.append(max(mach_num))
+    max_vel.append(max(vel))
+    max_accel.append(max(accel))
+    max_ke.append(0.5 * vel[-1] ** 2 * m_heav / 32.17)
+    print(testFlight.out_of_rail_velocity * feet2meters)
+    end_results = [run_params, final_vel, descent_time, apogee, distance, max_vel, max_accel, max_mach, max_ke] #stability removed
     filename = "output.csv"
 
     # Open the file in write mode
@@ -231,7 +334,9 @@ filename = "output.csv"
 # opening the file with w+ mode truncates the file
 f = open(filename, "w+")
 f.close()
-multi_sim()
+angles = [5, 5, 7.5, 7.5, 10]
+speeds = [0, 5, 10, 15, 20]
+multi_sim(angles, speeds, 1)
 #wolf.draw()
 #testFlight.plots.trajectory_3d()
 #testFlight.plots.all()
