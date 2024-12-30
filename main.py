@@ -12,7 +12,7 @@ feet2meters = 3.28084
 in2meters = 1 / 39.37
 lbs2kg = 0.4536
 
-with open('ConfigFiles/wolf_config.yaml', 'r') as file:
+with open('ConfigFiles/subscale.yaml', 'r') as file:
     data = yaml.safe_load(file)
 
 files_data = data["githubfiles"]
@@ -39,10 +39,7 @@ dragurl = files_data["dragurl"]
 #drag_array = np.stack([time_drag, drag], 1)
 
 ## REAL
-#env = rp.Environnment(latitude = XX, longitude = XX)
-#URL = "https://weather.uwyo.edu/cgi-bin/sounding?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=11&FROM=1700&TO=1712&STNM=72426"
-#env.set_atmospheric_model(type ="wyoming_sounding", file = URL)
-#env.set_atmospheric_model(type = "Windy", file="")
+
 
 
 
@@ -77,7 +74,7 @@ wolf = rp.Rocket(
     coordinate_system_orientation = "nose_to_tail",
     center_of_mass_without_motor = rocket_data["COM"] * in2meters #in -> meters
 )
-wolf.add_motor( L930, 92.5 * in2meters) #position of motor in rocket
+wolf.add_motor( L930, rocket_data["length"] * in2meters) #position of motor in rocket
 
 nose_cone = wolf.add_nose(
     length = nose_data["length"] * in2meters,
@@ -89,7 +86,7 @@ fin_set = wolf.add_trapezoidal_fins(
     n = fins_data["n"], #number of fins
     root_chord = fins_data["root_chord"] * in2meters, #in -> meters
     tip_chord = fins_data["tip_chord"] * in2meters, #in -> meters
-    position = fins_data["position"] * in2meters, #in -> meters
+    position = (rocket_data["length"] - fins_data["root_chord"]) * in2meters, #in -> meters
     span = fins_data["span"] * in2meters, #in -> meters
     sweep_length = fins_data["sweep"] * in2meters,
     #   airfoil = (airfoilLift, "degrees")
@@ -99,7 +96,7 @@ if parachutes_data["main_present"]:
         name = "main",
         cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 * in2meters) ** 2 * math.pi,
         trigger = parachutes_data["main_trigger"] / 3.281, #altitude of main deployment ft -> meters
-        lag = 0.5
+        #lag = 0.5
     )
 if parachutes_data["drogue_present"]:
     drogue = wolf.add_parachute(
@@ -122,8 +119,9 @@ def prof_graph(drift, alt, plt_title):
     plt.savefig('Plots/' + plt_title + " Profile.png", format='png')
     
 
-def param_graph(time, alt, vel, accel, ws, angle):
+def param_graph(time, alt, vel, accel, ws, angle, program):
     fig, ax1 = plt.subplots()
+    plt.grid()
     ax1.set_ylabel("Altitude (ft)")
     ax1.set_xlabel('time (s)')
     lns3 = ax1.plot(time, alt, color=(0, 0, 1),label="Altitude")
@@ -144,12 +142,12 @@ def param_graph(time, alt, vel, accel, ws, angle):
         ax2.set_ylim(bottom = ax2_ylims[1]*ax1_yratio)
     else:
         ax1.set_ylim(bottom = ax1_ylims[1]*ax2_yratio)
-    plt.suptitle("Flight Parameters against Time",
+    plt.suptitle(program + " Flight Parameters vs. Time",
                 fontweight = 'bold')
     plot_name = str(ws)+" mph " + str(angle) + " Degrees"
     plt.xlim((0, time[-1]))
     plt.title(plot_name)
-    plt.grid()
+    
     plt.savefig('Plots/' + plot_name + " Parameters.png", format='png')
     return(plot_name)
 
@@ -158,7 +156,7 @@ def multi_sim(angles, speeds, graphs):
     speeds_ms = [x * 0.44704 for x in speeds]
     env_arr = []
     for wind_speed in speeds_ms:
-        env = rp.Environment(latitude = 20.6, longitude = -80.6)
+        env = rp.Environment(latitude = 20.6, longitude = -80.6,elevation=0)
         #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
         env.set_date((2024, 4, 13, 6))
         env.set_atmospheric_model(
@@ -178,7 +176,7 @@ def multi_sim(angles, speeds, graphs):
     max_accel = ["Max Acceleration (ft/s)"]
     max_ke = ["Max Kinetic Energy (ft-lbf)"]
     run_params = [""]
-    for i in range(0,5):
+    for i in range(0,1):
         testFlight   = rp.Flight(
             rocket = wolf, environment = env_arr[i], rail_length = 3.6576, inclination = 90 - angles[i]  , heading = 270)
         alt = []
@@ -195,11 +193,8 @@ def multi_sim(angles, speeds, graphs):
             drift.append(-1 * testFlight.x(index) * feet2meters)
             if index == testFlight.apogee_time:
                 apo_index = len(drift)
-        if graphs == 1:
-            plot_name = param_graph(time, alt, vel, accel, speeds[i], angles[i])
-            prof_graph(drift, alt, plot_name)
-            
-            
+        plot_name = param_graph(time, alt, vel, accel, speeds[i], angles[i], "RocketPy")
+        prof_graph(drift, alt, plot_name + " RocketPy")
 
         final_vel.append(vel[-1])
         stability.append(testFlight.stability_margin(testFlight.out_of_rail_time))
@@ -213,11 +208,13 @@ def multi_sim(angles, speeds, graphs):
         max_ke.append(0.5 * vel[-1] ** 2 * m_heav / 32.17)
         print(testFlight.out_of_rail_velocity * feet2meters)
     print(stability)
+    print(wolf.cp_position(0) / in2meters)
+    print(wolf.center_of_mass(0) / in2meters)    
+    print(vel[-1])
     end_results = [run_params, final_vel, descent_time, apogee, distance, max_vel, max_accel, max_mach, max_ke] #stability removed
     #print([i for i in end_results])
     #print(descent_time)
     #print(testFlight.parachute_events)
-
 
 
     # Specify the file name
@@ -231,6 +228,31 @@ def multi_sim(angles, speeds, graphs):
         writer.writerows(end_results)
 
     print(f"Data written to {filename}")
+
+
+
+def graph_OR():
+    y = [['0','5'],['5','5'],['10','7.5'], ['15','7.5'], ['20','10']]
+    for x in y:
+        df = pandas.read_csv('CSV_files/' + x[0] + x[1].replace('.', '')+'.csv', index_col=None)
+        time = np.array(df[df.columns[0]].tolist())
+        alt = np.array(df[df.columns[1]].tolist())
+        vel = np.array(df[df.columns[2]].tolist())
+        accel = np.array(df[df.columns[3]].tolist())
+        param_graph(time, alt, vel, accel, x[0], x[1], "OpenRocket")
+
+def graph_thrust():
+    df = pandas.read_csv(thrusturl, index_col=None)
+    time = np.array(df[df.columns[0]].tolist())
+    thrust = np.array(df[df.columns[1]].tolist())
+    fig, ax1 = plt.subplots()
+    ax1.set_xlabel("Time (s)")
+    ax1.set_ylabel('Thrust (lbf)')
+    lns3 = ax1.plot(time, thrust * 0.2248, color=(0, 0, 1))
+    plt.suptitle("Thrust Curve",
+        fontweight = 'bold')
+    plt.grid()
+    plt.savefig('Plots/thrust.png', format='png')
 
 def sound_sim(s_env, angle):
     final_vel = ["Final Velocity (ft/s)"]
@@ -329,19 +351,27 @@ def mc_sim(angle, wind_speed):
     sim.simulate(100, False)
     sim.all_info()
 
+
 print(rp.__file__)
 filename = "output.csv"
 # opening the file with w+ mode truncates the file
 f = open(filename, "w+")
 f.close()
-angles = [5, 5, 7.5, 7.5, 10]
-speeds = [0, 5, 10, 15, 20]
+angles = [3, 5, 7.5, 7.5, 10]
+speeds = [7.4, 5, 10, 15, 20]
 multi_sim(angles, speeds, 1)
-#wolf.draw()
 #testFlight.plots.trajectory_3d()
 #testFlight.plots.all()
 #testFlight.plots.aerodynamic_forces()
 #testFlight.prints.all()
 
+df = pandas.read_csv('CSV_files/OR_Data.csv', index_col=None)
+time = np.array(df[df.columns[0]].tolist())
+alt = np.array(df[df.columns[1]].tolist())
 
-    
+df = pandas.read_csv('CSV_files/05.csv', index_col=None)
+time = np.array(df[df.columns[0]].tolist())
+alt = np.array(df[df.columns[1]].tolist())
+vel = np.array(df[df.columns[2]].tolist())
+accel = np.array(df[df.columns[3]].tolist())
+param_graph(time, alt, vel, accel, 7.4 , 3, "OpenRocket")

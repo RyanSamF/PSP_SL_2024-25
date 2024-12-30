@@ -3,12 +3,12 @@
 #Files for Motor
 githubfiles:
   thrusturl: 'CSV_files/Wolf_thrust.csv' #url for thrust
-  dragurl: 'CSV_files/wolf_cd_openrocket.csv' #url for drag
+  dragurl: 'CSV_files/wolf_CD.csv' #url for drag
 
 motor:
   net_mass: 7.8 #mass of motor with propellant in lbs
   prop_mass: 4.2 #mass of propellant in lbs
-  center_of_dry_mass: 8.5 #distance from nozzle of center of mass of motor without propellant in in
+  center_of_dry_mass: 7.5 #distance from nozzle of center of mass of motor without propellant in inches
   dry_inertia: [1.77, 1.77, 0.042] #moment of inertia without propellant in lbs*ft^2 
   chamber_rad: 1.379 #radius of inside of propellant chamber in in
   chamber_height: 15.748 #height of propellant chamber in inches
@@ -18,12 +18,12 @@ motor:
 rocket:
   uppersec: 9.56 #mass of upper section in lbs
   midsec: 9.54  #mass of middle section in lbs
-  booster: 12.24  #mass of booster section in lbs
+  booster: 12.34  #mass of booster section in lbs
   radius: 2.575 #radius of rocket in in
-  h_section: 12.24 #heaviest section of rocket in lbs
-  mass: 27.74 #mass in lbs
+  h_section: 12.34 #heaviest section of rocket in lbs
+  mass: 27.9 #mass in lbs
   inertia: [198.98, 198.98, 1.16] #moment of inertia in lbs*ft^2
-  COM: 58.271 #center of mass from nose without motor in inches
+  COM: 49.693 #center of mass from nose without motor in inches
   length: 99.598 #length of rocket in inches
 
 nose_cone:
