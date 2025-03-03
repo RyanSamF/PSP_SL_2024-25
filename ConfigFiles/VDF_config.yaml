@@ -1,0 +1,49 @@
+#Config File for Rocket setup
+---
+#Files for Motor
+githubfiles:
+  thrusturl: 'CSV_files/Wolf_thrust.csv' #url for thrust
+  dragurl: 'CSV_files/wolf_CD.csv' #url for drag
+
+motor:
+  net_mass: 7.8 #mass of motor with propellant in lbs
+  prop_mass: 4.2 #mass of propellant in lbs
+  center_of_dry_mass: 7.5 #distance from nozzle of center of mass of motor without propellant in inches
+  dry_inertia: [1.77, 1.77, 0.042] #moment of inertia without propellant in lbs*ft^2 
+  chamber_rad: 1.379 #radius of inside of propellant chamber in in
+  chamber_height: 15.748 #height of propellant chamber in inches
+  chamber_pos: 8.5 #position of center of propellant chamber inches
+  nozzle_rad: 0.625 #radius of nozzle in inches
+
+rocket:
+  uppersec: 9.56 #mass of upper section in lbs
+  midsec: 9.54  #mass of middle section in lbs
+  booster: 12.34  #mass of booster section in lbs
+  radius: 2.575 #radius of rocket in in
+  h_section: 12.34 #heaviest section of rocket in lbs
+  mass: 27.9 #mass in lbs
+  inertia: [198.98, 198.98, 1.16] #moment of inertia in lbs*ft^2
+  COM: 49.693 #center of mass from nose without motor in inches
+  length: 99.598 #length of rocket in inches
+
+nose_cone:
+  length: 11 #length of nose cone in inches
+  
+fins:
+  n: 3 #number of fins
+  root_chord: 5.5 #root chord in inches
+  tip_chord: 2 #length of tip chord in inches
+  position: 87 #position of top of fins in inches
+  span: 6.2 #span of fin in inches
+  sweep: 1.82 #sweep length of fins in inches  
+
+parachutes:
+  drogue_present: 1 #1 if drogue is present 0 if not
+  main_present: 1 #1 if main is present 0 if not
+  drogue_cd: 1  #coefficient of drag of drogue parachute
+  drogue_diameter: 18 #diameter of drogue parachute in inches
+  main_cd: 1.6 #coefficient of drag of main parachute 
+  main_diameter: 120 #diameter of main parachute in inches
+  main_trigger: 540 #trigger height for main parachute in ft
+
+...
