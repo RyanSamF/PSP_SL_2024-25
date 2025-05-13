@@ -413,8 +413,8 @@ filename = "output.csv"
 # opening the file with w+ mode truncates the file
 f = open(filename, "w+")
 f.close()
-angles = [5, 5, 7.5, 7.5, 10]
-speeds = [0, 5  , 10, 15, 20]
+angles = [4, 5, 7.5, 7.5, 10]
+speeds = [1, 5  , 10, 15, 20]
 env = rp.Environment(latitude = 40.505404, longitude = -87.019832, elevation=187)
     #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
 env.set_date((2024, 4, 13, 6))

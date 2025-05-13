@@ -21,9 +21,9 @@ rocket:
   booster: 12.34  #mass of booster section in lbs
   radius: 2.575 #radius of rocket in in
   h_section: 11.28 #heaviest section of rocket in lbs
-  mass: 29.9 #mass in lbs
-  inertia: [188.06, 188.06, 1.25] #moment of inertia in lbs*ft^2
-  COM: 52.47 #center of mass from nose without motor in inches
+  mass: 29.4 #mass in lbs
+  inertia: [181.43, 181.43, 1.23] #moment of inertia in lbs*ft^2
+  COM: 51.74 #center of mass from nose without motor in inches
   length: 99.598 #length of rocket in inches
 
 nose_cone:
