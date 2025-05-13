@@ -8,7 +8,7 @@ import math
 import matplotlib.pyplot as plt
 import csv
 from zoneinfo import ZoneInfo
-from plots.plotting import param_graph, prof_graph
+from plotting.sim_plots  import param_graph, prof_graph
 
 FT_TO_M = 3.28084
 IN_TO_M = 1 / 39.37
@@ -58,14 +58,14 @@ def get_ST_env(wind_speed):
 
 def multi_sim(angles, speeds, vehicle):
     ###################################################################################
-    #Creates RocketPy environment variable using given windspeed with
-    # standard atmosphere
+    #Creates profile plots and vertical movement plots given pairs of angles and wind
+    # speeds, also outputs useful data to output file
     #INPUTS:
     # angles - launch angles simulated (deg)
     # speeds - wind speeds simulated (mph)
     # vehicle - RocketPy rocket class variable with desired constrution
     #OUTPUTS:
-    # NONE?
+    # NONE
     ###################################################################################
 
     speeds_ms = [x * 0.44704 for x in speeds]
@@ -102,13 +102,17 @@ def multi_sim(angles, speeds, vehicle):
         vel = testFlight.vz(time) * FT_TO_M
         mach_num = testFlight.mach_number(time)
         drift = -1 * testFlight.x(time) * FT_TO_M
+
         for vIndex in range(0,len(vel)):
-            if vel_main_deploy == 0 and alt[vIndex] <= main.trigger * 3.281 + 10 and vel[vIndex] < -1:
+        #Determines velocity and time of main deployment
+            if vel_main_deploy == 0 and alt[vIndex] <= vehicle.main_deploy * 3.281 + 10 and vel[vIndex] < -1:
                 vel_main_deploy = vel[vIndex]
                 print("Under Drogue" + str(vel_main_deploy))
                 time_main_deploy = time[vIndex]
                 #print("alt:" + str(alt[-1]))
         plot_name = param_graph(time, alt, vel, accel, speeds[i], angles[i], "RocketPy")
+        
+        #Makes profile graphs for flight, altitude vs drift distance
         prof_graph(drift, alt, plot_name + " RocketPy")
 
         final_vel.append(vel[-1])
@@ -122,7 +126,7 @@ def multi_sim(angles, speeds, vehicle):
         max_mach.append(max(mach_num))
         max_vel.append(max(vel))
         max_accel.append(max(accel))
-        max_ke.append(0.5 * vel[-1] ** 2 * m_heav / 32.17)
+        max_ke.append(0.5 * vel[-1] ** 2 * vehicle.m_heav / 32.17)
         vel_at_main.append(vel_main_deploy)
         under_drogue.append(time_main_deploy + testFlight.apogee_time)
         #print("after" + str(time_main_deploy))
@@ -153,7 +157,7 @@ def multi_sim(angles, speeds, vehicle):
     #print(testFlight.parachute_events)
     
 
-
+    """PROBABLY WANT TO MAKE THIS IT'S OWN FUNCTION AT SOME POINT"""
     # Specify the file name
     filename = "output.csv"
 

@@ -54,6 +54,9 @@ def readYaml (filename):
         nozzle_radius = motor_data["nozzle_rad"] * IN_TO_M, #Nozzle radius (in -> meters)
         burn_time = None #Burn time (forced undefined, as it will be defined by thrust curve length)
     )
+    rp.Rocket.m_heav = None #adds new variable to rocketpy rocket class JANK SOLUTION, MAY CAUSE ISSUES
+    rp.Rocket.main_deploy = None #m_heav is mass of heaviest section, main_deploy is main parachute deploy height
+    print(type(rp.Rocket))
     vehicle = rp.Rocket(
     radius = rocket_data["radius"] * IN_TO_M, #airframe radius (in -> meters)
     mass = (rocket_data["mass"] * LBS_TO_KG), #Rocket mass WITHOUT motor (lbs -> kg)
@@ -104,6 +107,5 @@ def readYaml (filename):
         )
     vehicle.m_heav = m_heav
     vehicle.main_deploy = main.trigger
-    return(vehicle, m_heav)
+    return(vehicle)
 
-readYaml("ConfigFiles/final_config.yaml")
