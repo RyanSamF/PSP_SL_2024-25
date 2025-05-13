@@ -322,6 +322,7 @@ def CD_estimate(time, vel, accel, density, area):
     est_CD = np.clip(est_CD, -1, 1)
     plt.plot(time, est_CD)
     plt.show()
+    
 def smooth(y, box_pts):
     box = np.ones(box_pts)/box_pts
     y_smooth = np.convolve(y, box, mode='same')

@@ -16,9 +16,10 @@ def readYaml (filename):
     # Function to read YAML files with rocket data and convert them into 
     # RocketPy rocket class with data from config file
     #INPUTS:
-    #Filename - filepath of the YAML vehicle file within the directory
+    # Filename - filepath of the YAML vehicle file within the directory
     #OUTPUTS:
-    #vehicle - RocketPy rocket class with vehicle data from the loaded YAML file
+    # vehicle - RocketPy rocket class with vehicle data from the loaded YAML file
+    # m_heav - mass of the heaviest section in lbs
     #############################################################################
     
     #Opens YAML file and seperates dictionary of dictionaries into individual dicts and variables
@@ -33,10 +34,10 @@ def readYaml (filename):
     fins_data = data["fins"] 
     parachutes_data = data["parachutes"]
     thrusturl = files_data["thrusturl"] #filepath for the thrust vs time csv file
-    boostermass = rocket_data["booster"]
-    avionicsmass = rocket_data["midsec"]
-    nosemass = rocket_data["uppersec"]
-    m_heav = rocket_data["h_section"]
+    boostermass = rocket_data["booster"] #Mass of booster section (NOT CURRENTLY USED)
+    avionicsmass = rocket_data["midsec"] #Mass of avionics section (NOT CURRENTLY USED)
+    nosemass = rocket_data["uppersec"] #Mass of upper section (NOT CURRENTLY USED)
+    m_heav = rocket_data["h_section"] #mass of heaviest section for energy calculations
     dragurl = files_data["dragurl"] #filepath for the drag vs mach number csv file
 
     #Defines the motor using the motor_data dictionary
@@ -101,4 +102,8 @@ def readYaml (filename):
             #Defined as area (m^2) * coefficient of drag 
             trigger = "apogee" #Triggers drogue and apogee
         )
-    return(vehicle)
+    vehicle.m_heav = m_heav
+    vehicle.main_deploy = main.trigger
+    return(vehicle, m_heav)
+
+readYaml("ConfigFiles/final_config.yaml")
