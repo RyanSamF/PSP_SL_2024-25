@@ -13,7 +13,7 @@ feet2meters = 3.28084
 in2meters = 1 / 39.37
 lbs2kg = 0.4536
 
-with open('ConfigFiles/VDF_config.yaml', 'r') as file:
+with open('ConfigFiles/final_config.yaml', 'r') as file:
     data = yaml.safe_load(file)
 
 files_data = data["githubfiles"]
@@ -22,7 +22,6 @@ rocket_data = data["rocket"]
 nose_data = data["nose_cone"]
 fins_data = data["fins"]
 parachutes_data = data["parachutes"]
-
 thrusturl = files_data["thrusturl"]
 boostermass = rocket_data["booster"]
 avionicsmass = rocket_data["midsec"]
@@ -46,66 +45,7 @@ dragurl = files_data["dragurl"]
 
 #env.info()
 #env.plots.all()
-airfoilLift = []
-for i in np.linspace(-10,10, 200):
-    airfoilLift.append((i, i * 10))
 
-airfoilLift = np.array(airfoilLift) 
-
-L930 = rp.GenericMotor(
-    coordinate_system_orientation= "nozzle_to_combustion_chamber",
-    thrust_source = thrusturl,
-    dry_mass = (motor_data["net_mass"] - motor_data["prop_mass"]) * lbs2kg, #lbs -> kg
-    propellant_initial_mass = motor_data["prop_mass"] * lbs2kg, #lbs -> kg
-    #center_of_dry_mass_position = motor_data["center_of_dry_mass"] / 39.37, #in -> m
-    #dry_inertia = (1.22 / 4.882, 1.22 / 4.882, 0.042 / 4.882),
-    chamber_radius= motor_data["chamber_rad"] * in2meters ,#in to meters    
-    chamber_height = motor_data["chamber_height"] * in2meters, #in to meters
-    chamber_position = motor_data["center_of_dry_mass"] * in2meters, #in to meters
-    nozzle_radius = motor_data["nozzle_rad"] * in2meters, #in to meters
-    burn_time = None
-)
-
-wolf = rp.Rocket(
-    radius = rocket_data["radius"] * in2meters, #radius in -> meters
-    mass = (rocket_data["mass"] * lbs2kg), #mass lbs -> kg
-    inertia = np.array(rocket_data["inertia"]) * lbs2kg / feet2meters**2, #inertia lbs/ft^2 -> kg/m^2
-    power_off_drag = dragurl,
-    power_on_drag = dragurl,
-    coordinate_system_orientation = "nose_to_tail",
-    center_of_mass_without_motor = rocket_data["COM"] * in2meters #in -> meters
-)
-wolf.add_motor( L930, rocket_data["length"] * in2meters) #position of motor in rocket
-
-nose_cone = wolf.add_nose(
-    length = nose_data["length"] * in2meters,
-    kind = "von karman",
-    position = 0
-)
-
-fin_set = wolf.add_trapezoidal_fins(
-    n = fins_data["n"], #number of fins
-    root_chord = fins_data["root_chord"] * in2meters, #in -> meters
-    tip_chord = fins_data["tip_chord"] * in2meters, #in -> meters
-    position = (rocket_data["length"] - fins_data["root_chord"]) * in2meters, #in -> meters
-    span = fins_data["span"] * in2meters, #in -> meters
-    sweep_length = fins_data["sweep"] * in2meters,
-    #   airfoil = (airfoilLift, "degrees")
-)
-if parachutes_data["main_present"]:
-    main = wolf.add_parachute(
-        name = "main",
-        cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 * in2meters) ** 2 * math.pi,
-        trigger = parachutes_data["main_trigger"] / 3.281, #altitude of main deployment ft -> meters
-        #lag = 0.5
-    )
-if parachutes_data["drogue_present"]:
-    drogue = wolf.add_parachute(
-        name = "drogue",
-        lag = 0,
-        cd_s = parachutes_data["drogue_cd"] * (parachutes_data["drogue_diameter"] / 2 * in2meters) ** 2 * math.pi,
-        trigger = "apogee"
-    )
 #wolf.draw()
 
 def prof_graph(drift, alt, plt_title):
@@ -143,7 +83,7 @@ def compare_graph(params1, params2, ws, angle, program1, program2):
     lns5 = ax2.plot(time2, vel2, color=(1,0.6,0), label="Velocity (" + program2 + ")",alpha = 0.8)
     lns = lns1+lns2+lns3+lns4+lns5+lns6
     labs = [l.get_label() for l in lns]
-    ax1.legend(lns, labs, loc=4)
+    ax1.legend(lns, labs, loc=1)
     ax1_ylims = ax1.axes.get_ylim()          
     ax1_yratio = ax1_ylims[0] / ax1_ylims[1]  
 
@@ -154,13 +94,13 @@ def compare_graph(params1, params2, ws, angle, program1, program2):
         ax2.set_ylim(bottom = ax2_ylims[1]*ax1_yratio)
     else:
         ax1.set_ylim(bottom = ax1_ylims[1]*ax2_yratio)
-    plt.suptitle(program1 + " and " + program2 + " Flight Parameters vs. Time",
+    plt.suptitle(program1 + " Vs. " + program2 + " Parameters vs. Time",
                 fontweight = 'bold')
     plot_name = str(ws)+" mph " + str(angle) + " Degrees"
-    plt.xlim((0, time[-1]))
+    plt.xlim((0, max(time1[-1],time2[-1])))
     plt.title(plot_name)
-    
-    plt.savefig('Plots/' + plot_name +  program1 + program2 + " Parameters.png", format='png')
+    plt.show()
+    plt.savefig('Plots/' + "compare" + program1 + program2 + " Parameters.png", format='png')
 
 def param_graph(time, alt, vel, accel, ws, angle, program):
     fig, ax1 = plt.subplots()
@@ -229,6 +169,7 @@ def multi_sim(angles, speeds):
     final_vel = ["Final Velocity (ft/s)"]
     stability = ["Stability off rod (calibers)"]
     descent_time = ["Descent Time (seconds)"]
+    ascent_time = ["Ascent Time (seconds)"]
     apogee = ["Apogee (ft)"]
     distance = ["Drift Distance (ft)"]
     max_mach = ["Max Mach Number"]
@@ -242,25 +183,18 @@ def multi_sim(angles, speeds):
     for i in range(0,len(angles)):
         testFlight   = rp.Flight(
             rocket = wolf, environment = env_arr[i], rail_length = 3.6576, inclination = 90 - angles[i]  , heading = 270)
-        alt = []
-        accel = []
-        vel = []
-        mach_num = []
-        drift = []
         time = testFlight.time
         vel_main_deploy = 0
-        for index in time:
-            alt.append(testFlight.altitude(index) * feet2meters)
-            accel.append(testFlight.az(index) * feet2meters )
-            vel.append(testFlight.vz(index) * feet2meters)
-            mach_num.append(testFlight.mach_number(index))
-            drift.append(-1 * testFlight.x(index) * feet2meters)
-            if index == testFlight.apogee_time:
-                apo_index = len(drift)
-            if vel_main_deploy == 0 and alt[-1] <= main.trigger * 3.281 + 10 and vel[-1] < -1:
-                vel_main_deploy = vel[-1]
+        alt = testFlight.altitude(time) * feet2meters
+        accel = testFlight.az(time) * feet2meters
+        vel = testFlight.vz(time) * feet2meters
+        mach_num = testFlight.mach_number(time)
+        drift = -1 * testFlight.x(time) * feet2meters
+        for vIndex in range(0,len(vel)):
+            if vel_main_deploy == 0 and alt[vIndex] <= main.trigger * 3.281 + 10 and vel[vIndex] < -1:
+                vel_main_deploy = vel[vIndex]
                 print("Under Drogue" + str(vel_main_deploy))
-                time_main_deploy = index
+                time_main_deploy = time[vIndex]
                 #print("alt:" + str(alt[-1]))
         plot_name = param_graph(time, alt, vel, accel, speeds[i], angles[i], "RocketPy")
         prof_graph(drift, alt, plot_name + " RocketPy")
@@ -268,20 +202,23 @@ def multi_sim(angles, speeds):
         final_vel.append(vel[-1])
         stability.append(testFlight.stability_margin(testFlight.out_of_rail_time))
         descent_time.append(time[-1] - testFlight.apogee_time)
+        ascent_time.append(testFlight.apogee_time)
         apogee.append((testFlight.apogee - env.elevation) * feet2meters)
-        distance.append(abs(drift[-1]-drift[apo_index]))
+        distance.append(abs(drift[-1] + (feet2meters * testFlight.x(testFlight.apogee_time))))
+        print(drift[-1])
         run_params.append(plot_name)
         max_mach.append(max(mach_num))
         max_vel.append(max(vel))
         max_accel.append(max(accel))
         max_ke.append(0.5 * vel[-1] ** 2 * m_heav / 32.17)
         vel_at_main.append(vel_main_deploy)
-        under_drogue.append(time_main_deploy - testFlight.apogee_time)
+        under_drogue.append(time_main_deploy + testFlight.apogee_time)
         #print("after" + str(time_main_deploy))
         under_main.append(time[-1] - time_main_deploy)
+        print(max(drift) + feet2meters * testFlight.x(testFlight.apogee_time))
         #print("Velocity at Main Deployment:" + str(vel_main_deploy))
         #print(testFlight.out_of_rail_velocity * feet2meters)
-        testFlight.plots.trajectory_3d()
+        #testFlight.plots.trajectory_3d()
     print(stability)
     print(wolf.cp_position(0) / in2meters)
     print(wolf.center_of_mass(0) / in2meters)    
@@ -289,6 +226,7 @@ def multi_sim(angles, speeds):
     end_results = [run_params, 
         final_vel,
         descent_time,
+        ascent_time,
         apogee, 
         distance, 
         max_vel, 
@@ -301,6 +239,7 @@ def multi_sim(angles, speeds):
     #print([i for i in end_results])
     #print(descent_time)
     #print(testFlight.parachute_events)
+    
 
 
     # Specify the file name
@@ -315,6 +254,20 @@ def multi_sim(angles, speeds):
 
     print(f"Data written to {filename}")
 
+def compare_sim_real(vdf_data, env, aoa, flight_name):
+    testFlight   = rp.Flight(
+                rocket = wolf, environment = env, rail_length = 3.6576, inclination = 90 - aoa  , heading = 270)
+    time = testFlight.time
+    alt = testFlight.altitude(time) * feet2meters
+    accel = testFlight.az(time) * feet2meters
+    vel = testFlight.vz(time) * feet2meters
+
+    vdf_data [1] *= feet2meters
+    vdf_data[2] *= feet2meters
+    vdf_data[3] *= feet2meters
+
+
+    compare_graph([time, alt, vel, accel], vdf_data, 10, 3, "RocketPy", flight_name)
 
 
 def graph_OR():
@@ -361,6 +314,19 @@ def mc_sim(angle, wind_speed):
     sim.simulate(100, False)
     sim.all_info()
 
+#FUNCTION CD_estimate
+#Takes Time, velocity, acceleration, density and area
+#Graphs an estimate of Coefficient of drag
+def CD_estimate(time, vel, accel, density, area):
+    est_CD = (2* (abs(accel + 9.86) ) * 12.06556)/ (  density* area * (vel) ** 2)
+    est_CD = np.clip(est_CD, -1, 1)
+    plt.plot(time, est_CD)
+    plt.show()
+def smooth(y, box_pts):
+    box = np.ones(box_pts)/box_pts
+    y_smooth = np.convolve(y, box, mode='same')
+    return y_smooth
+
 #FUNCTION get_standard_data
 #Takes CSV file with Time, Altitude, Velocity, and Acceleration data
 #And formats it into an array for plotting.
@@ -372,19 +338,103 @@ def get_standard_data(csv_file):
     accel = np.array(df1[df1.columns[3]].tolist())
     return([time, alt, vel, accel])
 
+###############################################################################################
+
+vdf_data = get_standard_data("CSV_files/VDF_Flight.csv")
+# vdf_data[3] = smooth(vdf_data[3], 50)
+# vdf_data[2] = smooth(vdf_data[2],50)
+# vdf_data[1] = smooth(vdf_data[1],50)
+vdf_data[0] = vdf_data[0] #- #vdf_data[0][0]
+i=0
+thrust = []
+airfoilLift = []
+for i in np.linspace(-10,10, 200):
+    airfoilLift.append((i, i * 10))
+
+airfoilLift = np.array(airfoilLift) 
+
+L930 = rp.GenericMotor(
+    coordinate_system_orientation= "nozzle_to_combustion_chamber",
+    thrust_source = thrusturl,
+    dry_mass = (motor_data["net_mass"] - motor_data["prop_mass"]) * lbs2kg, #lbs -> kg
+    propellant_initial_mass = motor_data["prop_mass"] * lbs2kg, #lbs -> kg
+    #center_of_dry_mass_position = motor_data["center_of_dry_mass"] / 39.37, #in -> m
+    #dry_inertia = (1.22 / 4.882, 1.22 / 4.882, 0.042 / 4.882),
+    chamber_radius= motor_data["chamber_rad"] * in2meters ,#in to meters    
+    chamber_height = motor_data["chamber_height"] * in2meters, #in to meters
+    chamber_position = motor_data["center_of_dry_mass"] * in2meters, #in to meters
+    nozzle_radius = motor_data["nozzle_rad"] * in2meters, #in to meters
+    burn_time = None
+)
+
+wolf = rp.Rocket(
+    radius = rocket_data["radius"] * in2meters, #radius in -> meters
+    mass = (rocket_data["mass"] * lbs2kg), #mass lbs -> kg
+    inertia = np.array(rocket_data["inertia"]) * lbs2kg / feet2meters**2, #inertia lbs/ft^2 -> kg/m^2
+    power_off_drag = dragurl,
+    power_on_drag = dragurl,
+    coordinate_system_orientation = "nose_to_tail",
+    center_of_mass_without_motor = rocket_data["COM"] * in2meters #in -> meters
+)
+wolf.add_motor( L930, rocket_data["length"] * in2meters) #position of motor in rocket
+
+nose_cone = wolf.add_nose(
+    length = nose_data["length"] * in2meters,
+    kind = "von karman",
+    position = 0
+)
+
+fin_set = wolf.add_trapezoidal_fins(
+    n = fins_data["n"], #number of fins
+    root_chord = fins_data["root_chord"] * in2meters, #in -> meters
+    tip_chord = fins_data["tip_chord"] * in2meters, #in -> meters
+    position = (rocket_data["length"] - fins_data["root_chord"]) * in2meters, #in -> meters
+    span = fins_data["span"] * in2meters, #in -> meters
+    sweep_length = fins_data["sweep"] * in2meters,
+    #   airfoil = (airfoilLift, "degrees")
+)
+if parachutes_data["main_present"]:
+    main = wolf.add_parachute(
+        name = "main",
+        cd_s = parachutes_data["main_cd"] * (parachutes_data["main_diameter"] / 2 * in2meters) ** 2 * math.pi,
+        trigger = parachutes_data["main_trigger"] / 3.281, #altitude of main deployment ft -> meters
+        lag = 0
+    )
+if parachutes_data["drogue_present"]:
+    drogue = wolf.add_parachute(
+        name = "drogue",
+        lag = 0,
+        cd_s = parachutes_data["drogue_cd"] * (parachutes_data["drogue_diameter"] / 2 * in2meters) ** 2 * math.pi,
+        trigger = "apogee"
+    )
+#wolf.draw()
 print(rp.__file__)
 filename = "output.csv"
 # opening the file with w+ mode truncates the file
 f = open(filename, "w+")
 f.close()
-angles = [3, 5, 7.5, 7.5, 10]
-speeds = [10, 5, 10, 15, 20]
+angles = [5, 5, 7.5, 7.5, 10]
+speeds = [0, 5  , 10, 15, 20]
+env = rp.Environment(latitude = 40.505404, longitude = -87.019832, elevation=187)
+    #URL = "http://weather.uwyo.edu/cgi-bin/sound   ing?region=naconf&TYPE=TEXT%3ALIST&YEAR=2024&MONTH=04&FROM=1300&TO=1312&STNM=72230"
+env.set_date((2024, 4, 13, 6))
+env.set_atmospheric_model(
+    type="custom_atmosphere",
+    wind_u = [(0, 10*0.44704 ), (5000, 10*0.44704)],
+    wind_v = [(0, 0), (5000, 0)],
+    pressure=None,
+    temperature=None)
+
+
+#compare_sim_real(vdf_data, env, 3, "VDF Flight")
+#graph_thrust()
 multi_sim(angles, speeds)
+#graph_OR()
 #testFlight.plots.trajectory_3d()
 #testFlight.plots.all()
 #testFlight.plots.aerodynamic_forces()
 #testFlight.prints.all()
-
+#print(wolf.center_of_mass())
 
 
 #param_graph(time, alt, vel, accel, 7.4 , 3, "OpenRocket")

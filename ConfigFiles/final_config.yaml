@@ -3,7 +3,7 @@
 #Files for Motor
 githubfiles:
   thrusturl: 'CSV_files/Wolf_thrust.csv' #url for thrust
-  dragurl: 'CSV_files/New_FRR_Drag.csv' #url for drag
+  dragurl: 'CSV_files/addendum_drag.csv' #url for drag
 
 motor:
   net_mass: 7.8 #mass of motor with propellant in lbs
@@ -20,11 +20,11 @@ rocket:
   midsec: 9.54  #mass of middle section in lbs
   booster: 12.34  #mass of booster section in lbs
   radius: 2.575 #radius of rocket in in
-  h_section: 12.34 #heaviest section of rocket in lbs
-  mass: 27.9 #mass in lbs
-  inertia: [210.34, 210.34, 1.16] #moment of inertia in lbs*ft^2
-  COM: 55.11 #center of mass from nose without motor in inches
-  length: 102 #length of rocket in inches
+  h_section: 11.28 #heaviest section of rocket in lbs
+  mass: 29.9 #mass in lbs
+  inertia: [188.06, 188.06, 1.25] #moment of inertia in lbs*ft^2
+  COM: 52.47 #center of mass from nose without motor in inches
+  length: 99.598 #length of rocket in inches
 
 nose_cone:
   length: 11 #length of nose cone in inches
@@ -40,8 +40,8 @@ fins:
 parachutes:
   drogue_present: 1 #1 if drogue is present 0 if not
   main_present: 1 #1 if main is present 0 if not
-  drogue_cd: 1.8    #coefficient of drag of drogue parachute
-  drogue_diameter: 24 #diameter of drogue parachute in inches
+  drogue_cd: 0.8 #coefficient of drag of drogue parachute
+  drogue_diameter: 20 #diameter of drogue parachute in inches
   main_cd: 1.6 #coefficient of drag of main parachute 
   main_diameter: 120 #diameter of main parachute in inches
   main_trigger: 540 #trigger height for main parachute in ft
